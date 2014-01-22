@@ -1,0 +1,25 @@
+div.live-example {
+    display: block;
+    position: relative;
+    width: 90%;
+    margin: 15px auto;
+    text-align: left;
+    font-size: .60em;
+    line-height: 1.2em;
+    word-wrap: break-word;
+    box-shadow: 0 0 6px rgba(0,0,0,.3);
+}
+
+div.live-example .live-example-title {
+    padding: 5px;
+    text-align: left;
+}
+
+div.live-example .live-example-content {
+    padding: 5px;
+    overflow: auto;
+    word-wrap: normal;
+    display: block;
+    background: #3F3F3F;
+    color: #DCDCDC;
+}

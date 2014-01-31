@@ -4,7 +4,7 @@ div.live-example {
     width: 90%;
     margin: 15px auto;
     text-align: left;
-    font-size: .60em;
+    font-size: .55em;
     line-height: 1.2em;
     word-wrap: break-word;
     box-shadow: 0 0 6px rgba(0,0,0,.3);
@@ -13,6 +13,17 @@ div.live-example {
 div.live-example .live-example-title {
     padding: 5px;
     text-align: left;
+    color: white;
+    font-weight: bold;
+
+    background: #134674; /* Old browsers */
+    background: -moz-linear-gradient(left,  #134674 0%, #1a6699 75%, #134674 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%,#134674), color-stop(75%,#1a6699), color-stop(100%,#134674)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(left,  #134674 0%,#1a6699 75%,#134674 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(left,  #134674 0%,#1a6699 75%,#134674 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(left,  #134674 0%,#1a6699 75%,#134674 100%); /* IE10+ */
+    background: linear-gradient(to right,  #134674 0%,#1a6699 75%,#134674 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#134674', endColorstr='#134674',GradientType=1 ); /* IE6-9 */
 }
 
 div.live-example .live-example-content {
@@ -20,6 +31,6 @@ div.live-example .live-example-content {
     overflow: auto;
     word-wrap: normal;
     display: block;
-    background: #3F3F3F;
-    color: #DCDCDC;
+    background: white;
+    color: #4d4d4c;
 }

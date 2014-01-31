@@ -15,10 +15,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
         <link rel="stylesheet" href="css/reveal.min.css">
-        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
 
         <!-- For syntax highlighting -->
-        <link rel="stylesheet" href="lib/css/zenburn.css">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
 
         <link rel="stylesheet" href="css/custom.css">
 
@@ -44,20 +44,6 @@
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Slide controls</h2>
-                        <p>Use the arrow keys to navigate the slideshow: you can press the up and down keys to navigate through a concept, and the left and right keys to change concepts.</p>
-                        <p>You can also click the control panel in the bottom-right corner.</p>
-                        <p>Try pressing down now.</p>
-                    </section>
-                    <section>
-                        <p>There you go! You can go back by pressing up.</p>
-                        <p>You can also press ESC to zoom out and view all the slides.</p>
-                        <p>Finally, you can zoom in with alt+click. You can zoom out with another alt+click.</p>
-                    </section>
-                </section>
-
-                <section>
                     <h2>What is AngularJS?</h2>
                     <p>
                     AngularJS is an amazingly productive javascript web framework. It's extremely productive, designed for testability and embeddable in other applications. In a sense, AngularJS <i>extends</i> HTML. We'll soon see how.
@@ -68,499 +54,487 @@
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Bindings</h2>
-                        <pre><code class="language-html">
-    &lt;input type="text" ng-model="name"&gt;
-    Hello, {&#8203;{name}}
-                        </code></pre>
+                    <h2>Bindings</h2>
+                    <pre class="html"><code>
+&lt;input type="text" ng-model="name"&gt;
+Hello, {&#8203;{name}}
+                    </code></pre>
 
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                                function BindingsExample1() {}
-                            </script>
-                            <div class="live-example-content" ng-controller="BindingsExample1">
-                                <input type="text" ng-model="name">
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                            function BindingsExample1() {}
+                        </script>
+                        <div class="live-example-content" ng-controller="BindingsExample1">
+                            <input type="text" ng-model="name">
+                            Hello, {{name}}!
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li><code>ng-model</code> is an attribute defined by AngularJS.</li>
+                        <li>It roughly means: bind this textbox's value to the variable called "name".</li>
+                        <li><code>{&#8203;{<i>expression</i>}}</code> tells AngularJS to evaluate <code><i>expression</i></code> and display its value.</li>
+                        <li>In this case, the value of the variable "name" is displayed.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>
+&lt;input type="text" ng-model="name"&gt;
+Hello, {&#8203;{name}}!
+                    </code></pre>
+
+                    <ul>
+                        <li>As you type, the value of the variable is kept in sync with the content of the text field. As soon as the variable is updated, the block <code>{&#8203;{name}}</code> is updated.</li>
+                        <li>In MVC terminology, <code>ng-model</code> and the expressions allow you to use HTML element as a view.</li>
+                        <li>Furthermore, this binding is <i>two-way</i>, as you can see in the next example.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>
+&lt;input type="text" ng-model="name"&gt;&lt;br&gt;
+&lt;input type="text" ng-model="name"&gt;&lt;br&gt;
+Hello, {&#8203;{name}}!
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                            function BindingsExample2() {}
+                        </script>
+                        <div class="live-example-content" ng-controller="BindingsExample2">
+                            <input type="text" ng-model="name"><br>
+                            <input type="text" ng-model="name"><br>
+                            Hello, {{name}}!
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>We now have two inputs bound to the same variable: as you update one, the other gets updated as well.</li>
+                        <li>This happens, as we mentioned before, because the binding is <i>two-way</i>: as you update the variable, the DOM elements bound to it get updated and viceversa.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Controllers and scope</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test1Ctrl($scope) {
+    $scope.name = 'Andrea';
+}
+&lt;/script&gt;
+&lt;div ng-controller="Test1Ctrl"&gt;
+    Hello, {&#8203;{name}}!
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test1Ctrl($scope) {
+                            $scope.name = 'Andrea';
+                        }
+                        </script>
+
+                        <div class="live-example-content">
+                            <div ng-controller="Test1Ctrl">
                                 Hello, {{name}}!
                             </div>
                         </div>
+                    </div>
 
-                        <ul>
-                            <li><code>ng-model</code> is an attribute defined by AngularJS.</li>
-                            <li>It roughly means: bind this textbox's value to the variable called "name".</li>
-                            <li><code>{&#8203;{<i>expression</i>}}</code> tells AngularJS to evaluate <code><i>expression</i></code> and display its value.</li>
-                            <li>In this case, the value of the variable "name" is displayed.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;input type="text" ng-model="name"&gt;
-    Hello, {&#8203;{name}}!
-                        </code></pre>
-
-                        <ul>
-                            <li>As you type, the value of the variable is kept in sync with the content of the text field. As soon as the variable is updated, the block <code>{&#8203;{name}}</code> is updated.</li>
-                            <li>In MVC terminology, <code>ng-model</code> and the expressions allow you to use HTML element as a view.</li>
-                            <li>Furthermore, this binding is <i>two-way</i>, as you can see in the next example.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;input type="text" ng-model="name"&gt;&lt;br&gt;
-    &lt;input type="text" ng-model="name"&gt;&lt;br&gt;
-    Hello, {&#8203;{name}}!
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                                function BindingsExample2() {}
-                            </script>
-                            <div class="live-example-content" ng-controller="BindingsExample2">
-                                <input type="text" ng-model="name"><br>
-                                <input type="text" ng-model="name"><br>
-                                Hello, {{name}}!
-                            </div>
-                        </div>
-
-                        <ul>
-                            <li>We now have two inputs bound to the same variable: as you update one, the other gets updated as well.</li>
-                            <li>This happens, as we mentioned before, because the binding is <i>two-way</i>: as you update the variable, the DOM elements bound to it get updated and viceversa.</li>
-                        </ul>
-                    </section>
+                    <ul>
+                        <li>A <i>controller</i> is a javascript function, whose name by convention ends with Ctrl or Controller.</li>
+                        <li>The <code>$scope</code> is a special Angular object, that is used as glue between the controller (the javascript) and the view (the html).</li>
+                        <li>Variables set on the <code>$scope</code> are available to the view.</li>
+                        <li>We can use <code>ng-controller</code> on a node to specify the controller to use for the children of the given node.</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Controllers and scope</h2>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test1Ctrl($scope) {
-        $scope.name = 'Andrea';
-    }
-    &lt;/script&gt;
-    &lt;div ng-controller="Test1Ctrl"&gt;
-        Hello, {&#8203;{name}}!
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test2Ctrl($scope) {
+    $scope.name = 'Andrea';
+}
+
+function Test3Ctrl($scope) {
+    $scope.age = 28;
+}
+&lt;/script&gt;
+
+&lt;div ng-controller="Test2Ctrl"&gt;
+    &lt;div ng-controller="Test3Ctrl"&gt;
+        Hello, {&#8203;{name}} - you are {&#8203;{age}} old!
     &lt;/div&gt;
-                        </code></pre>
+&lt;/div&gt;
+                    </code></pre>
 
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test1Ctrl($scope) {
-                                $scope.name = 'Andrea';
-                            }
-                            </script>
-
-                            <div class="live-example-content">
-                                <div ng-controller="Test1Ctrl">
-                                    Hello, {{name}}!
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test2Ctrl($scope) {
+                            $scope.name = 'Andrea';
+                        }
+                        function Test3Ctrl($scope) {
+                            $scope.age = 28;
+                        }
+                        </script>
+                        <div class="live-example-content">
+                            <div ng-controller="Test2Ctrl">
+                                <div ng-controller="Test3Ctrl">
+                                    Hello, {{name}} - you are {{age}}!
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <ul>
-                            <li>A <i>controller</i> is a javascript function, whose name by convention ends with Ctrl or Controller.</li>
-                            <li>The <code>$scope</code> is a special Angular object, that is used as glue between the controller (the javascript) and the view (the html).</li>
-                            <li>Variables set on the <code>$scope</code> are available to the view.</li>
-                            <li>We can use <code>ng-controller</code> on a node to specify the controller to use for the children of the given node.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test2Ctrl($scope) {
-        $scope.name = 'Andrea';
-    }
-
-    function Test3Ctrl($scope) {
-        $scope.age = 28;
-    }
-    &lt;/script&gt;
-
-    &lt;div ng-controller="Test2Ctrl"&gt;
-        &lt;div ng-controller="Test3Ctrl"&gt;
-            Hello, {&#8203;{name}} - you are {&#8203;{age}} old!
-        &lt;/div&gt;
-    &lt;/div&gt;
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test2Ctrl($scope) {
-                                $scope.name = 'Andrea';
-                            }
-                            function Test3Ctrl($scope) {
-                                $scope.age = 28;
-                            }
-                            </script>
-                            <div class="live-example-content">
-                                <div ng-controller="Test2Ctrl">
-                                    <div ng-controller="Test3Ctrl">
-                                        Hello, {{name}} - you are {{age}}!
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ul>
-                            <li>Controllers can be nested. Elements in the children controller can access properties set on the parent controller.</li>
-                        </ul>
-                    </section>
+                    <ul>
+                        <li>Controllers can be nested. Elements in the children controller can access properties set on the parent controller.</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Directives</h2>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test4Ctrl($scope) {
-        $scope.cities = ['Rome', 'Paris', 'Berlin'];
-    }
-    &lt;/script&gt;
+                    <h2>Directives</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test4Ctrl($scope) {
+    $scope.cities = ['Rome', 'Paris', 'Berlin'];
+}
+&lt;/script&gt;
 
-    &lt;div ng-controller="Test4Ctrl"&gt;
-        &lt;p ng-repeat="city in cities"&gt;
-            {&#8203;{city}} is a nice place!
-        &lt;/p&gt;
-    &lt;/div&gt;
-                        </code></pre>
+&lt;div ng-controller="Test4Ctrl"&gt;
+    &lt;p ng-repeat="city in cities"&gt;
+        {&#8203;{city}} is a nice place!
+    &lt;/p&gt;
+&lt;/div&gt;
+                    </code></pre>
 
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test4Ctrl($scope) {
-                                $scope.cities = ['Rome', 'Paris', 'Berlin'];
-                            }
-                            </script>
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test4Ctrl($scope) {
+                            $scope.cities = ['Rome', 'Paris', 'Berlin'];
+                        }
+                        </script>
 
-                            <div class="live-example-content">
-                                <div ng-controller="Test4Ctrl">
-                                    <p ng-repeat="city in cities">
-                                        {{city}} is a nice place!
-                                    </p>
-                                </div>
+                        <div class="live-example-content">
+                            <div ng-controller="Test4Ctrl">
+                                <p ng-repeat="city in cities">
+                                    {{city}} is a nice place!
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        <ul>
-                            <li>As you can see by the example above, <code>ng-repeat</code> will iterate in an array and replicate the node it is attached to, for each element of the array.</li>
-                            <li><code>ng-repeat</code> can be applied to any html tag.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <ul>
-                            <li><i>Directives</i> are the method used by Angular to extend html.</li>
-                            <li><code>ng-model</code>, <code>ng-repeat</code> are examples of builtin directives</li>
-                            <li>It is possible, and extremely useful, to define your own directives; however that will be covered later on, as it requires a good knowledge of Angular.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test5Ctrl($scope) {
-        $scope.age = 28;
-    }
-    &lt;/script&gt;
-
-    &lt;div ng-controller="Test5Ctrl"&gt;
-        &lt;p ng-show="age &gt;= 18"&gt;
-            You can vote.
-        &lt;/p&gt;
-        &lt;p ng-show="age &lt; 18"&gt;
-            Sorry kid, come back in a while.
-        &lt;/p&gt;
-    &lt;/div&gt;
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test5Ctrl($scope) {
-                                $scope.age = 28;
-                            }
-                            </script>
-
-                            <div class="live-example-content">
-                                <div ng-controller="Test5Ctrl">
-                                    <p ng-show="age >= 18">
-                                        You can vote.
-                                    </p>
-                                    <p ng-show="age < 18">
-                                        Sorry kid, come back in a while.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ul>
-                            <li>Another extremely useful directive is <code>ng-show</code>: the node to which it is applyed will be invisible if the expression is not true.</li>
-                            <li>You can also use <code>ng-hide</code> to make your code clearer.</li>
-                            <li>We'll see some more useful directives later on.</li>
-                        </ul>
-                    </section>
+                    <ul>
+                        <li>As you can see by the example above, <code>ng-repeat</code> will iterate in an array and replicate the node it is attached to, for each element of the array.</li>
+                        <li><code>ng-repeat</code> can be applied to any html tag.</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Filters</h2>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test6Ctrl($scope) {
-        $scope.now = new Date(2013, 01, 22);
-        $scope.price = 42.67;
-        $scope.name = 'Picard';
-    }
-    &lt;/script&gt;
-
-    &lt;div ng-controller="Test6Ctrl"&gt;
-        Today is {&#8203;{now | date}}. The captain is {&#8203;{name | lowercase}}, 
-        yelled as {&#8203;{name | uppercase}}. The price is {&#8203;{price | number:1}}.
-    &lt;/div&gt;
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test6Ctrl($scope) {
-                                $scope.now = new Date(2013, 01, 22);
-                                $scope.price = 42.67;
-                                $scope.name = 'Picard';
-                            }
-                            </script>
-
-                            <div class="live-example-content">
-                                <div ng-controller="Test6Ctrl">
-                                    Today is {{now | date}}. The captain is {{name | lowercase}}, 
-                                    yelled as {{name | uppercase}}. The price is {{price | number:1}}.
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section>
-                        <ul>
-                            <li>Filters are applied in the general form <code>{&#8203;{expression | filter}}</code>.</li>
-                            <li>Filters are simply javascript functions that transform the given input.</li>
-                            <li>Angular defines a few useful filters, like <code>date</code>, <code>lowercase</code>, <code>uppercase</code>, and <code>number</code>.</li>
-                            <li>Filters can take parameters: in the example we have passed <code>1</code> as parameter to <code>number</code>, using the syntax <code>number:1</code>. This tells the <code>number</code> filter to display the result using one decimal.</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test7Ctrl($scope) {
-        $scope.items = ['France', 'Italy', 'Germany'];
-    }
-    &lt;/script&gt;
-
-    &lt;div ng-controller="Test7Ctrl"&gt;
-        &lt;span ng-repeat="item in items | filter:'e'"&gt;{&#8203;{item}}. &lt;/span&gt;
-    &lt;/div&gt;
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test7Ctrl($scope) {
-                                $scope.items = ['France', 'Italy', 'Germany'];
-                            }
-                            </script>
-
-                            <div class="live-example-content">
-                                <div ng-controller="Test7Ctrl">
-                                    <span ng-repeat="item in items | filter:'e'">{{item}}. </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ul>
-                            <li>We have now applied the special filter <code>filter</code>. It is a filter that, when applied to an array, returns only the items that match the given parameter (in this case, <code>'e'</code>). Therefore, "Italy" was excluded.</li>
-                            <li>And now for a cool example...</li>
-                        </ul>
-                    </section>
-
-                    <section>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test8Ctrl($scope) {
-        $scope.items = ['France', 'Italy', 'Germany', 'Austria', 'Japan'];
-    }
-    &lt;/script&gt;
-    &lt;div ng-controller="Test8Ctrl"&gt;
-        &lt;input type="text" ng-model="query"&gt;
-        &lt;br&gt;
-        &lt;ul&gt;
-            &lt;li ng-repeat="item in items | filter:query"&gt;{&#8203;{item}}&lt;/li&gt;
-        &lt;/ul&gt;
-    &lt;/div&gt;
-                        </code></pre>
-
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test8Ctrl($scope) {
-                                $scope.items = ['France', 'Italy', 'Germany', 'Austria', 'Japan'];
-                            }
-                            </script>
-
-                            <div class="live-example-content">
-                                <div ng-controller="Test8Ctrl">
-                                    <input type="text" ng-model="query">
-                                    <br>
-                                    <ul>
-                                        <li ng-repeat="item in items | filter:query">{{item}}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <ul>
-                            <li>By combining <code>ng-model</code> on an input box and <code>filter</code>, we can build a list with a quick-search.</li>
-                        </ul>
-                    </section>
+                    <ul>
+                        <li><i>Directives</i> are the method used by Angular to extend html.</li>
+                        <li><code>ng-model</code>, <code>ng-repeat</code> are examples of builtin directives</li>
+                        <li>It is possible, and extremely useful, to define your own directives; however that will be covered later on, as it requires a good knowledge of Angular.</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Responding to clicks</h2>
-                        <pre><code class="language-html">
-    &lt;script&gt;
-    function Test9Ctrl($scope) {
-        $scope.items = ['One', 'Two', 'Three'];
-        $scope.add = function() {
-            $scope.items.push($scope.newItem);
-        }
-    }
-    &lt;/script&gt;
-    &lt;div ng-controller="Test9Ctrl"&gt;
-        &lt;input type="text" ng-model="newItem"&gt;
-        &lt;button ng-click="add()"&gt;Add&lt;/button&gt;
-    &lt;/div&gt;
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test5Ctrl($scope) {
+    $scope.age = 28;
+}
+&lt;/script&gt;
+
+&lt;div ng-controller="Test5Ctrl"&gt;
+    &lt;p ng-show="age &gt;= 18"&gt;
+        You can vote.
+    &lt;/p&gt;
+    &lt;p ng-show="age &lt; 18"&gt;
+        Sorry kid, come back in a while.
+    &lt;/p&gt;
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test5Ctrl($scope) {
+                            $scope.age = 28;
+                        }
+                        </script>
+
+                        <div class="live-example-content">
+                            <div ng-controller="Test5Ctrl">
+                                <p ng-show="age >= 18">
+                                    You can vote.
+                                </p>
+                                <p ng-show="age < 18">
+                                    Sorry kid, come back in a while.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>Another extremely useful directive is <code>ng-show</code>: the node to which it is applyed will be invisible if the expression is not true.</li>
+                        <li>You can also use <code>ng-hide</code> to make your code clearer.</li>
+                        <li>We'll see some more useful directives later on.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Filters</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test6Ctrl($scope) {
+    $scope.now = new Date(2013, 01, 22);
+    $scope.price = 42.67;
+    $scope.name = 'Picard';
+}
+&lt;/script&gt;
+
+&lt;div ng-controller="Test6Ctrl"&gt;
+    Today is {&#8203;{now | date}}. The captain is {&#8203;{name | lowercase}}, 
+    yelled as {&#8203;{name | uppercase}}. The price is {&#8203;{price | number:1}}.
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test6Ctrl($scope) {
+                            $scope.now = new Date(2013, 01, 22);
+                            $scope.price = 42.67;
+                            $scope.name = 'Picard';
+                        }
+                        </script>
+
+                        <div class="live-example-content">
+                            <div ng-controller="Test6Ctrl">
+                                Today is {{now | date}}. The captain is {{name | lowercase}}, 
+                                yelled as {{name | uppercase}}. The price is {{price | number:1}}.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Filters are applied in the general form <code>{&#8203;{expression | filter}}</code>.</li>
+                        <li>Filters are simply javascript functions that transform the given input.</li>
+                        <li>Angular defines a few useful filters, like <code>date</code>, <code>lowercase</code>, <code>uppercase</code>, and <code>number</code>.</li>
+                        <li>Filters can take parameters: in the example we have passed <code>1</code> as parameter to <code>number</code>, using the syntax <code>number:1</code>. This tells the <code>number</code> filter to display the result using one decimal.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test7Ctrl($scope) {
+    $scope.items = ['France', 'Italy', 'Germany'];
+}
+&lt;/script&gt;
+
+&lt;div ng-controller="Test7Ctrl"&gt;
+    &lt;span ng-repeat="item in items | filter:'e'"&gt;{&#8203;{item}}. &lt;/span&gt;
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test7Ctrl($scope) {
+                            $scope.items = ['France', 'Italy', 'Germany'];
+                        }
+                        </script>
+
+                        <div class="live-example-content">
+                            <div ng-controller="Test7Ctrl">
+                                <span ng-repeat="item in items | filter:'e'">{{item}}. </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>We have now applied the special filter <code>filter</code>. It is a filter that, when applied to an array, returns only the items that match the given parameter (in this case, <code>'e'</code>). Therefore, "Italy" was excluded.</li>
+                        <li>And now for a cool example...</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test8Ctrl($scope) {
+    $scope.items = ['France', 'Italy', 'Germany', 'Austria', 'Japan'];
+}
+&lt;/script&gt;
+&lt;div ng-controller="Test8Ctrl"&gt;
+    &lt;input type="text" ng-model="query"&gt;
     &lt;br&gt;
     &lt;ul&gt;
-        &lt;li ng-repeat="item in items"&gt;{&#8203;{item}}&lt;/li&gt;
-    &lt;/ul&gt;</code></pre>
+        &lt;li ng-repeat="item in items | filter:query"&gt;{&#8203;{item}}&lt;/li&gt;
+    &lt;/ul&gt;
+&lt;/div&gt;
+                    </code></pre>
 
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test9Ctrl($scope) {
-                                $scope.items = ['One', 'Two', 'Three'];
-                                $scope.add = function() {
-                                    $scope.items.push($scope.newItem);
-                                }
-                            }
-                            </script>
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test8Ctrl($scope) {
+                            $scope.items = ['France', 'Italy', 'Germany', 'Austria', 'Japan'];
+                        }
+                        </script>
 
-                            <div class="live-example-content">
-                                <div ng-controller="Test9Ctrl">
-                                    <input type="text" ng-model="newItem">
-                                    <button ng-click="add()">Add</button>
-                                    <br>
-                                    <ul>
-                                        <li ng-repeat="item in items">{{item}}</li>
-                                    </ul>
-                                </div>
+                        <div class="live-example-content">
+                            <div ng-controller="Test8Ctrl">
+                                <input type="text" ng-model="query">
+                                <br>
+                                <ul>
+                                    <li ng-repeat="item in items | filter:query">{{item}}</li>
+                                </ul>
                             </div>
                         </div>
-                    </section>
+                    </div>
 
-                    <section>
-                        <ul>
-                            <li>We have now defined, in the <code>$scope</code>, a function called <code>add</code>.</li>
-                            <li>The function can access <code>newItem</code> from the <code>$scope</code>. Its value is automatically updated by Angular, as we discussed when we talked about two-way binding.</li>
-                            <li>We have also used the <code>ng-click</code> directive to have the function invoked when the button is clicked.</li>
-                            <li>Note: whatever function we want to attach to an <code>ng-click</code>, must be exposed to the <code>$scope</code>.</li>
-                        </ul>
-                    </section>
+                    <ul>
+                        <li>By combining <code>ng-model</code> on an input box and <code>filter</code>, we can build a list with a quick-search.</li>
+                    </ul>
                 </section>
 
                 <section>
-                    <section>
-                        <h2>Talking to servers</h2>
-                        <pre><code class="language-html" style="font-size: 0.85em; line-height: 1.05em;">
-    &lt;script&gt;
-    function Test10Ctrl($scope, $http) {
-        $scope.getWeather = function() {
-            $http.get('http://api.openweathermap.org/data/2.5/weather', {params: {
-                    units: 'metric',
-                    q: $scope.city
-                }
-            }).then(function(response) {
-                    $scope.weather = response.data;
-                });
-        }
+                    <h2>Responding to clicks</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+function Test9Ctrl($scope) {
+    $scope.items = ['One', 'Two', 'Three'];
+    $scope.add = function() {
+        $scope.items.push($scope.newItem);
     }
-    &lt;/script&gt;
-    &lt;div ng-controller="Test10Ctrl"&gt;
-        City: &lt;input type="text" ng-model="city"&gt;
-        &lt;button ng-click="getWeather()"&gt;Search&lt;/button&gt;&lt;br&gt;
-        &lt;p ng-show="weather"&gt;Temperature: {&#8203;{weather.main.temp}}&deg;C,
-        humidity: {&#8203;{weather.main.humidity}}%.&lt;/p&gt;
-        &lt;p ng-hide="weather"&gt;Please enter a city name and press "Search".&lt;/p&gt;
-    &lt;/div&gt;
-                        </code></pre>
+}
+&lt;/script&gt;
+&lt;div ng-controller="Test9Ctrl"&gt;
+    &lt;input type="text" ng-model="newItem"&gt;
+    &lt;button ng-click="add()"&gt;Add&lt;/button&gt;
+&lt;/div&gt;
+&lt;br&gt;
+&lt;ul&gt;
+    &lt;li ng-repeat="item in items"&gt;{&#8203;{item}}&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
 
-                        <div class="live-example">
-                            <div class="live-example-title">Live example</div>
-                            <script>
-                            function Test10Ctrl($scope, $http) {
-                                $scope.getWeather = function() {
-                                    $http.get('http://api.openweathermap.org/data/2.5/weather', {params: {
-                                            units: 'metric',
-                                            q: $scope.city
-                                        }
-                                    }).then(function(response) {
-                                            $scope.weather = response.data;
-                                        });
-                                }
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test9Ctrl($scope) {
+                            $scope.items = ['One', 'Two', 'Three'];
+                            $scope.add = function() {
+                                $scope.items.push($scope.newItem);
                             }
-                            </script>
+                        }
+                        </script>
 
-                            <div class="live-example-content">
-                                <div ng-controller="Test10Ctrl">
-                                    City: <input type="text" ng-model="city"> <button ng-click="getWeather()">Search</button><br>
-                                    <p ng-show="weather">Temperature: {{weather.main.temp}}&deg;C, humidity: {{weather.main.humidity}}%.</p>
-                                    <p ng-hide="weather">Please enter a city name and press "Search".</p>
-                                </div>
+                        <div class="live-example-content">
+                            <div ng-controller="Test9Ctrl">
+                                <input type="text" ng-model="newItem">
+                                <button ng-click="add()">Add</button>
+                                <br>
+                                <ul>
+                                    <li ng-repeat="item in items">{{item}}</li>
+                                </ul>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <section>
-                        <ul>
-                            <li>We are now ready to start talking to servers. In this case, we'll use the excellent and free <a href="http://openweathermap.org/">Open Weather Map</a> service.</li>
-                            <li>This server accepts a query to an url of the form <a href="http://api.openweathermap.org/data/2.5/weather?units=metric&q=Turin">http://api.openweathermap.org/data/2.5/weather?units=metric&q=Turin</a>, and will return a json object representing the current weather for Turin. (Open the URL now to see it.)</li>
-                            <li>In our controller we defined a function <code>getWeather</code> to invoke this service. We use the Angular builtin <i>service</i> <code>$http</code> to perform an HTTP request and manipulate the json result.</li>
-                            <li>We'll discuss later what services are and how they work.</li>
-                        </ul>
-                    </section>
-                    
-                    <section>
-                        <ul>
-                            <li>Note how we use the second argument of <code>$http.get</code> to pass the parameters to the HTTP request.</li>
-                            <li>Since we perform an asynchronous ajax request, we cannot simply do <code>$scope.weather = $http.get(...)</code>. <code>$http.get</code> returns a <i>promise</i> object. We'll discuss promises in more detail later; for the moment let us focus on the <code>then</code> method.</li>
-                            <li>The <code>then</code> method of a promise accepts a callback (a javascript function) that will be invoked with an object wrapping the raw XmlHttpRequest (the browser object to perform Ajax requests).</li>
-                            <li>By accessing <code>response.data</code>, we can access the json object returned by Open Weather Map. In turn, we save this object in the scope.</li>
-                        </ul>
-                    </section>
+                <section>
+                    <ul>
+                        <li>We have now defined, in the <code>$scope</code>, a function called <code>add</code>.</li>
+                        <li>The function can access <code>newItem</code> from the <code>$scope</code>. Its value is automatically updated by Angular, as we discussed when we talked about two-way binding.</li>
+                        <li>We have also used the <code>ng-click</code> directive to have the function invoked when the button is clicked.</li>
+                        <li>Note: whatever function we want to attach to an <code>ng-click</code>, must be exposed to the <code>$scope</code>.</li>
+                    </ul>
+                </section>
 
-                    <section>
-                        <ul>
-                            <li>Therefore, what happens is: the user clicks on the button. Angular invokes the function <code>getWeather</code>, that performs the HTTP request to Open Weather Map.</li>
-                            <li>When the HTTP requests returns, the anonymous function passed to <code>then</code> is executed, and there we'll save the result in the <code>$scope</code>.</li>
-                            <li>At this point, Angular will hide the second paragraph, fill in the expressions and display the first paragraph with the values returned by the server.</li>
-                        </ul>
-                    </section>
+                <section>
+                    <h2>Talking to servers</h2>
+                    <pre><code class="language-html" style="font-size: 0.85em; line-height: 1.05em;">
+&lt;script&gt;
+function Test10Ctrl($scope, $http) {
+    $scope.getWeather = function() {
+        $http.get('http://api.openweathermap.org/data/2.5/weather', {params: {
+                units: 'metric',
+                q: $scope.city
+            }
+        }).then(function(response) {
+                $scope.weather = response.data;
+            });
+    }
+}
+&lt;/script&gt;
+&lt;div ng-controller="Test10Ctrl"&gt;
+    City: &lt;input type="text" ng-model="city"&gt;
+    &lt;button ng-click="getWeather()"&gt;Search&lt;/button&gt;&lt;br&gt;
+    &lt;p ng-show="weather"&gt;Temperature: {&#8203;{weather.main.temp}}&deg;C,
+    humidity: {&#8203;{weather.main.humidity}}%.&lt;/p&gt;
+    &lt;p ng-hide="weather"&gt;Please enter a city name and press "Search".&lt;/p&gt;
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        function Test10Ctrl($scope, $http) {
+                            $scope.getWeather = function() {
+                                $http.get('http://api.openweathermap.org/data/2.5/weather', {params: {
+                                        units: 'metric',
+                                        q: $scope.city
+                                    }
+                                }).then(function(response) {
+                                        $scope.weather = response.data;
+                                    });
+                            }
+                        }
+                        </script>
+
+                        <div class="live-example-content">
+                            <div ng-controller="Test10Ctrl">
+                                City: <input type="text" ng-model="city"> <button ng-click="getWeather()">Search</button><br>
+                                <p ng-show="weather">Temperature: {{weather.main.temp}}&deg;C, humidity: {{weather.main.humidity}}%.</p>
+                                <p ng-hide="weather">Please enter a city name and press "Search".</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>We are now ready to start talking to servers. In this case, we'll use the excellent and free <a href="http://openweathermap.org/">Open Weather Map</a> service.</li>
+                        <li>This server accepts a query to an url of the form <a href="http://api.openweathermap.org/data/2.5/weather?units=metric&q=Turin">http://api.openweathermap.org/data/2.5/weather?units=metric&q=Turin</a>, and will return a json object representing the current weather for Turin. (Open the URL now to see it.)</li>
+                        <li>In our controller we defined a function <code>getWeather</code> to invoke this service. We use the Angular builtin <i>service</i> <code>$http</code> to perform an HTTP request and manipulate the json result.</li>
+                        <li>We'll discuss later what services are and how they work.</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <ul>
+                        <li>Note how we use the second argument of <code>$http.get</code> to pass the parameters to the HTTP request.</li>
+                        <li>Since we perform an asynchronous ajax request, we cannot simply do <code>$scope.weather = $http.get(...)</code>. <code>$http.get</code> returns a <i>promise</i> object. We'll discuss promises in more detail later; for the moment let us focus on the <code>then</code> method.</li>
+                        <li>The <code>then</code> method of a promise accepts a callback (a javascript function) that will be invoked with an object wrapping the raw XmlHttpRequest (the browser object to perform Ajax requests).</li>
+                        <li>By accessing <code>response.data</code>, we can access the json object returned by Open Weather Map. In turn, we save this object in the scope.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Therefore, what happens is: the user clicks on the button. Angular invokes the function <code>getWeather</code>, that performs the HTTP request to Open Weather Map.</li>
+                        <li>When the HTTP requests returns, the anonymous function passed to <code>then</code> is executed, and there we'll save the result in the <code>$scope</code>.</li>
+                        <li>At this point, Angular will hide the second paragraph, fill in the expressions and display the first paragraph with the values returned by the server.</li>
+                    </ul>
                 </section>
             </div>
         </div>
@@ -576,12 +550,15 @@
                 progress: true,
                 history: true,
                 center: true,
-                theme: 'default',
+                theme: 'sky',
                 transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
                 dependencies: [
                     { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } }
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
                 ]
             });
         </script>

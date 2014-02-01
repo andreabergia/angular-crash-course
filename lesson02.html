@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en" ng-app="lesson02">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>AngularJS - A crash course - Lesson 2</title>
+
+        <meta name="description" content="A crash course in AngularJS - Lesson 2">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <script src="js/angular.min.js"></script>
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>AngularJS Crash Course</h1>
+                    <h3>Lesson 2 - Modules and Services</h3>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Modular applications</h2>
+                    <p>
+                    We've seen earlier some examples of AngularJS controllers, defined as global functions. While that approach is fine for a few simple examples, to design a larger application it's important to have some good code organization.
+                    </p>
+                    <p>
+                    AngularJS helps us with this with the concept of modules. A module is a set of related directives, filters, controllers and services. In this lesson we'll focus on controllers and services.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>A simple module</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+angular.module('module01', []).
+    controller('Sample01Controller', function($scope) {
+        $scope.currTime = new Date();
+    });
+&lt;/script&gt;
+&lt;div ng-controller="Sample01Controller"&gt;
+    It's {&#8203;{currTime | date}}
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        angular.module('module01', []).
+                            controller('Sample01Controller', function($scope) {
+                                $scope.currTime = new Date();
+                            });
+                        </script>
+                        <div ng-controller="Sample01Controller">
+                            It's {{currTime | date}}
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li><code>angular.module</code> defines a new <i>module</i>. The first parameter is the new module's name; the second is the list of modules it depends upon.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The object returned from <code>angular.module</code> is an AngularJS module, on which we can invoke the method <code>controller</code> to define a new controller.</li>
+                        <li><code>controller</code> takes two parameters: the first is the name of the controller and the second is a function. You'll often pass it an anonymous function.</li>
+                        <li>Modules have more methods, which allow you to define new filters, directives and services. We'll discuss those later.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The last piece of the puzzle is the <i>application</i>. Angular must know that a given tag is in the scope of a certain module to be able to find its controllers.</li>
+                        <li>This page contains this code:
+                            <pre class="html"><code>
+&lt;html ng-app="lesson02"&gt;
+...
+&lt;script&gt;
+    angular.module('lesson02', ['module01']);
+&lt;/script&gt;
+                            </code></pre>
+                        </li>
+                        <li>The <code>&lt;script&gt;</code> creates a module, called "lesson02", which depends upon "module01". Thus all the controllers defined in this module are available to "lesson02".</li>
+                        <li>Finally, we tell angular that the whole content of the page is in the scope of the "lesson02" module, and thus can use all the dependent modules. With this technique, we can structure our code in logical components.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Services and dependency injection</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+angular.module('module02', []).
+    factory('dateService', function() {
+        return {
+            getCurrTime: function() {
+                return new Date();
+            }
+        };
+    }).
+    controller('Sample02Controller', function($scope, dateService) {
+        $scope.currTime = dateService.getCurrTime();
+    });
+&lt;/script&gt;
+                    </code></pre>
+
+                    <ul>
+                        <li>Calling <code>factory</code> on a module will allow us to define a service. This isn't the only way to define it; for more details, you can see <a href="https://stackoverflow.com/questions/15666048/angular-js-service-vs-provider-vs-factory">this StackOverflow's thread</a>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>A <i>service</i> is nothing more than a JavaScript object. When using <code>factory</code>, the service is the return value of the function. Thus, in the example <code>dateService</code> is a JS object with a single method defined, "getCurrTime".</li>
+                        <li>It is time to talk about <i>dependency injection</i>. AngularJS will automatically match a controller's parameters with registered services. Since our controller has a parameter named <code>dateService</code>, Angular will find the instance of the service that was registered with that name and pass it to our controller's function at the time of the execution.</li>
+                        <li>This is very similar what a dependency injection framework, such as Spring or Guice, does in a more object-oriented language like Java or C#.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Using the parameter's name for dependency injection is quite effective and simple to use, but it has a drawback: if we minify the JavaScript code, the parameter name will get mangled and Angular will not be able to perform the dependency injection, which will give us errors at runtime.</li>
+                        <li>To solve this issue, you can use an alternative syntax:
+                        <pre class="js"><code>
+    controller('Sample02Controller', ['$scope', 'dateService', 
+        function($scope, dateService) {
+                        </code></pre>
+                        You'll need to pass an array to controller, containing the names (as strings) of the objects you need to have injected and then the function literal. Note that the order of the parameters must be the same as the strings!</li>
+                        <li>We won't use this syntax often to save space, but you should always use it in real code. You may want to check out <a href="https://egghead.io/lessons/angularjs-ngmin">ngmin</a> if you want to automate it.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+
+        <script>
+            angular.module('lesson02', ['module01', 'module02']);
+        </script>
+    </body>
+</html>

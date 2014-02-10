@@ -35,7 +35,7 @@ Furthermore, it is common to support _subordinate_ resources, which represent re
 
 ## Introduction to HTTP
 
-HTTP is a textual protocol, used - as everyone knows - to access the web, but which can be used as a general-purpose inter-application protocol. HTTP requests always have a _method_, a set of _headers_ and might have _parameters_ and a _request body_. HTTP responses always have a _status_ and might have a set of _headers_ and a _response body_. Let us now discuss the main methods.
+HTTP is a textual protocol, used - as everyone knows - to access the web, but which can be used as a general-purpose inter-application protocol. HTTP requests always have a _method_, a set of _headers_ and might have _parameters_ and a _request body_. HTTP responses always have a _status_ and might have a set of _headers_ and a _response body_. Let us now discuss the [main methods](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html).
 
 ### Methods
 
@@ -54,18 +54,6 @@ HTTP is a textual protocol, used - as everyone knows - to access the web, but wh
 #### POST
 
 `POST` is used to create a new resource under an existing one, but it also commonly used as a general RPC (remote procedure call) mechanism, meaning you might allow a request on `/users/{id}/invite` to send an invite to an existing user. However, these kind of resources might be thought of, or redesigned, in terms of a "invite" resource subordinated to an "user". Its request commonly has a body, and so does its response, but neither is required. A common kind of body is `application/x-www-form-urlencoded`, from a web form.
-
-#### HEAD
-
-`HEAD` can be used in place of `GET`; it should behave in the same way, but the server response must contain only the headers and not the response body. It is not commonly used (and seldom implemented).
-
-#### OPTIONS
-
-`OPTIONS` can be used to query the server for the supported methods on a given resource. It must be idempotent. It is very seldom used (and implemented in servers).
-
-#### PATCH
-
-`PATCH` is a recently proposed extension to HTTP. It is designed for modifying an existing resource. It is not yet commonly used, and is not part of the HTTP 1.1 standard.
 
 ### Statuses
 
@@ -119,7 +107,7 @@ Some of the common ones in the request are:
 - _array_: ordered, comma separated collection of etherogeneous values, for instance `[2, true, "Hi"]`
 - _objects_: unordered collection of key-values pair, for instance `{"name": "Andrea", age: 28}`
 
-Often a JSON HTTP response will be an object, or an array, but that is not necessary. A complex example:
+Often a JSON HTTP response will be an object, or an array, but that is not necessary. A realistic example of a response that might be returned from a server:
 
 ```json
 {

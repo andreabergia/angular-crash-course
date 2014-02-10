@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>titolo</title>
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>titolo</h1>
+    </div>
+
+    <h1 id="rest">REST</h1>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is an architectural paradigm for designing web applications, based on HTTP 1.1 and URLs (also known as URIs). The main design points are:</p>
+<ul>
+<li>clear separation of clients and servers</li>
+<li>stateless</li>
+<li>cacheable</li>
+<li>transparently layered (the client doesn't know to which specific machine it is talking)</li>
+<li>uniform interface, which we'll now discuss in detail.</li>
+</ul>
+<p>The central principle is the concept of <em>resources</em>. A server can provide access to multiple resources via URLs. The clients and servers communicates <em>representations</em> of the resources and access them only using the principal methods of the HTTP 1.1 standard:</p>
+<ul>
+<li><code>GET</code></li>
+<li><code>POST</code></li>
+<li><code>PUT</code></li>
+<li><code>DELETE</code></li>
+</ul>
+<p>Resources are often represented using HTML, XML, or JSON.</p>
+<h2 id="a-first-example">A first example</h2>
+<p>Let us suppose a server provides access to a list of users. Thus, it might expose these "api":</p>
+<ul>
+<li><code>GET</code> on <code>/users</code>, to retrieve the list of the users</li>
+<li><code>GET</code> on <code>/users/{id}</code>, to retrieve an user given its id</li>
+<li><code>POST</code> on <code>/users</code>, to create a new user</li>
+<li><code>PUT</code> on <code>/users/{id}</code>, to update the user with the given id</li>
+<li><code>DELETE</code> on /users/{id}`, to remove an user.</li>
+</ul>
+<p>Furthermore, it is common to support <em>subordinate</em> resources, which represent resources contained under another one. For instance, the mail for an users might be thought of as a subordinate resource, and thus accessed - for instance - with a <code>GET</code> on <code>/users/{id}/mail</code>.</p>
+<hr>
+
+<h2 id="introduction-to-http">Introduction to HTTP</h2>
+<p>HTTP is a textual protocol, used - as everyone knows - to access the web, but which can be used as a general-purpose inter-application protocol. HTTP requests always have a <em>method</em>, a set of <em>headers</em> and might have <em>parameters</em> and a <em>request body</em>. HTTP responses always have a <em>status</em> and might have a set of <em>headers</em> and a <em>response body</em>. Let us now discuss the main methods.</p>
+<h3 id="methods">Methods</h3>
+<h4 id="get">GET</h4>
+<p><code>GET</code> is used to retrieve a resource, given its path on the server (the last part of the URL, e.g. <code>/users</code> for <code>http://localhost:8080/users</code>). <code>GET</code> is designed to be used only for retrieval of a resource. It should be <em>idempotent</em>, meaning that it should not modify the resource on the server. It cannot have a content, but it might have parameters. A response to a <code>GET</code> request should have a body. Parameters are specified in the URL in the form <code>param1=value1&amp;param2=value2&amp;param3=value3</code>.</p>
+<h4 id="put">PUT</h4>
+<p><code>PUT</code> is used to modify an already existing resource, or (somewhat less commonly) to create a new one. It should have a request body, unless an empty resource makes sense for the application. Its response might or might not have a body.</p>
+<h4 id="delete">DELETE</h4>
+<p><code>DELETE</code> is used to destory an already existing resource. It cannot have a request body. Its response might have a body, although that isn't too common.</p>
+<h4 id="post">POST</h4>
+<p><code>POST</code> is used to create a new resource under an existing one, but it also commonly used as a general RPC (remote procedure call) mechanism, meaning you might allow a request on <code>/users/{id}/invite</code> to send an invite to an existing user. However, these kind of resources might be thought of, or redesigned, in terms of a "invite" resource subordinated to an "user". Its request commonly has a body, and so does its response, but neither is required. A common kind of body is <code>application/x-www-form-urlencoded</code>, from a web form.</p>
+<h4 id="head">HEAD</h4>
+<p><code>HEAD</code> can be used in place of <code>GET</code>; it should behave in the same way, but the server response must contain only the headers and not the response body. It is not commonly used (and seldom implemented).</p>
+<h4 id="options">OPTIONS</h4>
+<p><code>OPTIONS</code> can be used to query the server for the supported methods on a given resource. It must be idempotent. It is very seldom used (and implemented in servers).</p>
+<h4 id="patch">PATCH</h4>
+<p><code>PATCH</code> is a recently proposed extension to HTTP. It is designed for modifying an existing resource. It is not yet commonly used, and is not part of the HTTP 1.1 standard.</p>
+<h3 id="statuses">Statuses</h3>
+<p>All HTTP responses have a status. A status is a three-digit number, which identifies whether the request was successful or not. Status codes are grouped in families by the first digit. The most commonly used statuses are:</p>
+<ul>
+<li>
+<p><code>2xx</code> success, of which the most common are:</p>
+<ul>
+<li><code>200 OK</code>, which means that the request was succesful.</li>
+<li><code>201 Created</code>, which means that the resource was created. A server might return <code>200</code> instead of <code>201</code>.</li>
+<li><code>204 No Content</code>, which means that the request was succesful but the response has no body. It is often used for a <code>DELETE</code> request. A server might return <code>200</code> instead of <code>204</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>3xx</code> family, which are designed to handle redirect. Generally the client libraries will handle these automatically, and they are thus transparent for the end application.</p>
+</li>
+<li>
+<p><code>4xx</code> errors, which mean errors in the requests. The most common errors in this family are:</p>
+<ul>
+<li><code>400 Bad Request</code>, meaning that the client has performed a malformed request.</li>
+<li><code>401 Unauthorized</code>, meaning that authentication is required and has failed, or has not yet provided.</li>
+<li><code>403 Forbidden</code>, meaning that the request is valid but the server is refusing to respond to it.</li>
+<li><code>404 Not Found</code>, meaning that the requested resource does not exist. It might also be returned in case the resource exists, but the user cannot access it, to prevent the user discovering that the resource <em>exists</em>.</li>
+<li><code>409 Conflict</code>, meaning that there was a conflict in a request, such as an edit conflict in case of multiple updates.</li>
+</ul>
+</li>
+<li>
+<p><code>5xx</code> errors, which mean a valid request but a processing errors in the server. The most common error in this family is <code>500 Internal Server Error</code>, a generic error code when an error happens in the server.</p>
+</li>
+</ul>
+<h3 id="headers">Headers</h3>
+<p>HTTP requests and responses can have headers, which are helpful to describe the content of the request or response, and can provide additional information to the server. The most common ones in the response are:</p>
+<ul>
+<li><code>Cache-Control</code>, 'Expires', and <code>ETag</code><C-F2>, used to control cache. Caching is a complex topic; please look up <a href="https://developers.google.com/speed/articles/caching">this link</a> for further information.</li>
+<li><code>Content-Length</code>, the length of the response in bytes.</li>
+<li><code>Content-Encoding</code>, which specifies the compression algorithm used in the response. For instance, <code>Content-Encoding: gzip</code>.</li>
+<li><code>Content-Disposition</code>, which instructs the browser to show a "save attachment" dialog. For instance, <code>Content-Disposition: attachment; filename="fname.ext"</code>.</li>
+<li><code>Set-Cookie</code>, which sets a cookie in the client. The client is expected to add a <code>Cookie</code> header with the returned value in any following request. See <a href="https://en.wikipedia.org/wiki/HTTP_cookie">wikipedia</a> for more details.</li>
+</ul>
+<p>Some of the common ones in the request are:</p>
+<ul>
+<li><code>Accept</code>, to specify the acceptables representations of a resource. For instance, <code>Accept: application/json</code>. The server should send the response in the requested format or return an error.</li>
+<li><code>Accept-Encoding</code>, to specify an acceptable compression for a resource. The most common value is <code>Accept-Encoding: gzip, deflate</code>. It is generally handled transparently by the client and the server libraries.</li>
+<li><code>ETag</code>, to handle caching.</li>
+<li><code>Cookie</code>, which should contain the value returned to the server as <code>Set-Cookie</code>.</li>
+</ul>
+<hr>
+
+<h2 id="json">JSON</h2>
+<p><a href="https://en.wikipedia.org/wiki/JSON">JSON</a> is a format commonly used for encoding request and response body in HTTP requests. JSON is based on JavaScript, but it is a language-independent encoding. The valid data types are:</p>
+<ul>
+<li><em>number</em>: in double precision, for instance <code>3.14</code></li>
+<li><em>string</em>: unicode, double-quoted, backslash escaped, for instance <code>"Hèlló \"Wórlð"</code></li>
+<li><em>boolean</em>: either <code>true</code> or <code>false</code></li>
+<li><em>null</em></li>
+<li><em>array</em>: ordered, comma separated collection of etherogeneous values, for instance <code>[2, true, "Hi"]</code></li>
+<li><em>objects</em>: unordered collection of key-values pair, for instance <code>{"name": "Andrea", age: 28}</code></li>
+</ul>
+<p>Often a JSON HTTP response will be an object, or an array, but that is not necessary. A complex example:</p>
+<div class="codehilite"><pre><span class="p">{</span>
+    <span class="nt">&quot;main&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;temp&quot;</span><span class="p">:</span> <span class="mf">4.51</span><span class="p">,</span>
+        <span class="nt">&quot;pressure&quot;</span><span class="p">:</span> <span class="mi">999</span><span class="p">,</span>
+        <span class="nt">&quot;humidity&quot;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+        <span class="nt">&quot;temp_min&quot;</span><span class="p">:</span> <span class="mf">3.33</span><span class="p">,</span>
+        <span class="nt">&quot;temp_max&quot;</span><span class="p">:</span> <span class="mi">6</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;main&quot;</span><span class="p">:</span> <span class="s2">&quot;Clear&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;sky is clear&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr>
+
+<h2 id="a-weather-example">A weather example</h2>
+<p>Let us now write a full python program that will perform an HTTP request to a real web server.</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">httplib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&quot;Please give a city as argument&quot;</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">city</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="s">&quot;api.openweathermap.org&quot;</span><span class="p">)</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s">&quot;GET&quot;</span><span class="p">,</span> <span class="s">&quot;/data/2.5/forecast/daily?mode=json&amp;units=metric&amp;q=&quot;</span> <span class="o">+</span> <span class="n">city</span><span class="p">)</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getresponse</span><span class="p">()</span>
+
+<span class="c"># It should print 200 OK</span>
+<span class="c"># print resp.status, resp.reason</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+<span class="n">day</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">for</span> <span class="n">forecast</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]:</span>
+    <span class="k">print</span> <span class="s">&quot;In </span><span class="si">%d</span><span class="s"> days the temperature will be </span><span class="si">%d</span><span class="s">, and the wheather </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">forecast</span><span class="p">[</span><span class="s">&#39;temp&#39;</span><span class="p">][</span><span class="s">&#39;day&#39;</span><span class="p">],</span> <span class="n">forecast</span><span class="p">[</span><span class="s">&#39;weather&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;description&#39;</span><span class="p">])</span>
+    <span class="n">day</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</body>
+</html>

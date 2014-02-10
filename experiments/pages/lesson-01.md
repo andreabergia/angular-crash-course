@@ -1,5 +1,3 @@
-[TOC]
-
 # Lesson 1: Getting started
 
 ## What is AngularJS?

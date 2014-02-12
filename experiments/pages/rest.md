@@ -1,4 +1,4 @@
-# REST
+[TOC]
 
 ## Introduction
 
@@ -94,6 +94,12 @@ Some of the common ones in the request are:
 - `ETag`, to handle caching.
 - `Cookie`, which should contain the value returned to the server as `Set-Cookie`.
 
+### Authentication and statelessness
+
+REST prescribes "statelessness" as one of the main points. However, for a lot of applications, it is much simpler to keep some state in the server - for instance, the current user session. This is much simpler to program, but it also hurts scalability, beecause the session must be shared between the various servers. The most common way to do this is by using cookies: the server will associate a session in its memory to a session token, sent to the client as a cookie. This is the approach natively follower by some server technologies, such as Java's servlets.
+
+The other option is to avoid keeping state in the server. To do this and implement authentication, HTTP supports various mechanisms. Unfortunately none of these is secure _and_ easy to use. Most websites (such as Twitter or Google) use one of these mechanism for their REST APIs, most commonly [HTTP Basic Auth](https://en.wikipedia.org/wiki/Basic_access_authentication).
+
 <hr>
 
 ## JSON
@@ -106,6 +112,8 @@ Some of the common ones in the request are:
 - _null_
 - _array_: ordered, comma separated collection of etherogeneous values, for instance `[2, true, "Hi"]`
 - _objects_: unordered collection of key-values pair, for instance `{"name": "Andrea", age: 28}`
+
+JSON got a lot of momentum in the last few years because of its simplicity, the fact that it is human-readable, the ease of implementation of a parser, and its expressiveness. It is also far more compact than XML, which has started to replace.
 
 Often a JSON HTTP response will be an object, or an array, but that is not necessary. A realistic example of a response that might be returned from a server:
 
@@ -127,9 +135,9 @@ Often a JSON HTTP response will be an object, or an array, but that is not neces
 
 <hr>
 
-## A weather example
+## An example client
 
-Let us now write a full python program that will perform an HTTP request to a real web server.
+Let us now write a full python program that will perform an HTTP request to a real web server. The service we'll use is [OpenWeatherMap.org](http://openweathermap.org), which exposes a free REST API for weather forecast. A `GET` request on the url [http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&units=metric&q=CITY](http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&units=metric&q=CITY) will return a JSON object representing the weather forecast for the given CITY. With this in mind, we can write our little program:
 
 ```python
 import httplib
@@ -154,3 +162,33 @@ for forecast in data['list']:
     print "In %d days the temperature will be %d, and the wheather %s" % (day, forecast['temp']['day'], forecast['weather'][0]['description'])
     day += 1
 ```
+
+Let us look at what has gone on the wire. The request was something like:
+
+```http
+GET /data/2.5/forecast/daily?mode=json&units=metric&q=CITY HTTP/1.1
+Host: api.openweathermap.org
+Connection: keep-alive
+Cache-Control: no-cache
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Pragma: no-cache
+Accept-Encoding: gzip,deflate,sdch
+```
+
+While the response might have been:
+
+```http
+HTTP/1.1 200 OK
+Access-Control-Allow-Credentials:true
+Access-Control-Allow-Methods:GET, POST
+Access-Control-Allow-Origin:*
+Connection:keep-alive
+Content-Type:application/json; charset=utf-8
+Date:Wed, 12 Feb 2014 19:53:39 GMT
+Server:nginx
+Transfer-Encoding:chunked
+
+{"cod":"200","message":0.0269,"city":{"id":"6691831","name":"","coord":{"lon":12.458,"lat":41.9024},"country":"Vatican City","population":0},"cnt":7,"list":[{"dt":1392202800,"temp":{"day":9.35,"min":7.63,"max":9.35,"night":7.63,"eve":9.35,"morn":9.35},"pressure":1014.66,"humidity":100,"weather":[{"id":802,"main":"Clouds","description":"scattered clouds","icon":"03n"}],"speed":3.88,"deg":340,"clouds":32},{"dt":1392289200,"temp":{"day":11.57,"min":5.92,"max":12.14,"night":12.14,"eve":10.86,"morn":5.92},"pressure":1018.03,"humidity":100,"weather":[{"id":500,"main":"Rain","description":"light rain","icon":"10d"}],"speed":4.81,"deg":201,"clouds":56,"rain":3},{"dt":1392375600,"temp":{"day":13.65,"min":8.12,"max":13.76,"night":8.12,"eve":11.01,"morn":11.12},"pressure":1017.05,"humidity":89,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":7.06,"deg":332,"clouds":0},{"dt":1392462000,"temp":{"day":13.59,"min":6.48,"max":13.86,"night":12.08,"eve":12.46,"morn":6.48},"pressure":1021.8,"humidity":96,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"02d"}],"speed":3.97,"deg":135,"clouds":8},{"dt":1392548400,"temp":{"day":14.41,"min":12.19,"max":14.61,"night":13.47,"eve":14.33,"morn":12.19},"pressure":1018.54,"humidity":89,"weather":[{"id":500,"main":"Rain","description":"light rain","icon":"10d"}],"speed":10.56,"deg":157,"clouds":92,"rain":0.5},{"dt":1392634800,"temp":{"day":14.18,"min":11.49,"max":14.18,"night":11.49,"eve":11.89,"morn":11.88},"pressure":1021.54,"humidity":92,"weather":[{"id":800,"main":"Clear","description":"sky is clear","icon":"01d"}],"speed":3.56,"deg":223,"clouds":0},{"dt":1392721200,"temp":{"day":13.54,"min":11.67,"max":13.54,"night":12.2,"eve":12.57,"morn":11.67},"pressure":1011.41,"humidity":0,"weather":[{"id":500,"main":"Rain","description":"light rain","icon":"10d"}],"speed":8.1,"deg":224,"clouds":50,"rain":1.2}]}
+```
+
+This concludes our introduction to REST apis, HTTP and JSON.

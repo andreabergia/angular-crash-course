@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction</title>
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Introduction</h1>
+    </div>
+
+    <p>We will discuss how to write modern web applications, based on the technologies called "AJAX". The core design for this class of applications is as follows:</p>
+<ul>
+<li>the server does not render templates, such as JSP or similar, but rather sends the client "raw data" via a set of REST APIs, often in form of JSON;</li>
+<li>the client (the webpage) performs multiple HTTP requests using <code>XmlHttpRequest</code> (AJAX requests) to the server and applies templates to render the data directly in the browser.</li>
+</ul>
+<p>This approach was started by Google's GMail, the first modern AJAX application. It has many advantages over the classic "server-side-templates" model:</p>
+<ul>
+<li>the application can feel istantaneous due to multiple factors: smaller requests and response sizes, avoidance of reloading a full page, background work</li>
+<li>the client is often easier to develop, due to the improvements in frameworks and in the browser</li>
+<li>the server can focus on the data, making it much simpler to develop and test, without having to worry also about the design</li>
+<li>other clients (i.e. not webpages) can easily access the server</li>
+<li>the APIs and the data transmitted is (often) human readable and, thus, simple to debug.</li>
+</ul>
+<p>In this short introduction, we'll cover how to write a modern web application using these technologies:</p>
+<ul>
+<li><a href="http://angularjs.org">AngularJS</a> 1.2 in the client</li>
+<li><a href="http://java.com/getjava">Java 7</a> and <a href="http://spring.io/">Spring</a> 3.3 in the server.</li>
+</ul>
+<p>We'll start with an introduction to the underlying technologies: REST, HTTP and JSON. Then we'll move to the core concepts in the server and client technologies. Finally, we'll develop a fully working example application.</p>
+
+    <hr>
+    
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="index.html">Back to the index</a>
+        </div>
+    </div>
+
+    <hr>
+</div>
+</body>
+</html>

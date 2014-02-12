@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST, HTTP and JSON</title>
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>REST, HTTP and JSON</h1>
+    </div>
+
+    <div class="toc">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#a-first-example">A first example</a></li>
+<li><a href="#introduction-to-http">Introduction to HTTP</a><ul>
+<li><a href="#methods">Methods</a><ul>
+<li><a href="#get">GET</a></li>
+<li><a href="#put">PUT</a></li>
+<li><a href="#delete">DELETE</a></li>
+<li><a href="#post">POST</a></li>
+</ul>
+</li>
+<li><a href="#statuses">Statuses</a></li>
+<li><a href="#headers">Headers</a></li>
+<li><a href="#authentication-and-statelessness">Authentication and statelessness</a></li>
+</ul>
+</li>
+<li><a href="#json">JSON</a></li>
+<li><a href="#an-example-client">An example client</a></li>
+</ul>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> is an architectural paradigm for designing web applications, based on HTTP 1.1 and URLs (also known as URIs).</p>
+<p>The central principle is the concept of <em>resources</em>. A server can provide access to multiple resources via URLs. The clients and servers communicates <em>representations</em> of the resources and access them only using the principal methods of the HTTP 1.1 standard:</p>
+<ul>
+<li><code>GET</code></li>
+<li><code>POST</code></li>
+<li><code>PUT</code></li>
+<li><code>DELETE</code></li>
+</ul>
+<p>Resources are often represented using HTML, XML, or JSON.</p>
+<h2 id="a-first-example">A first example</h2>
+<p>Let us suppose a server provides access to a list of users. Thus, it might expose these "api":</p>
+<ul>
+<li><code>GET</code> on <code>/users</code>, to retrieve the list of the users</li>
+<li><code>GET</code> on <code>/users/{id}</code>, to retrieve an user given its id</li>
+<li><code>POST</code> on <code>/users</code>, to create a new user</li>
+<li><code>PUT</code> on <code>/users/{id}</code>, to update the user with the given id</li>
+<li><code>DELETE</code> on /users/{id}`, to remove an user.</li>
+</ul>
+<p>Furthermore, it is common to support <em>subordinate</em> resources, which represent resources contained under another one. For instance, the mail for an users might be thought of as a subordinate resource, and thus accessed - for instance - with a <code>GET</code> on <code>/users/{id}/mail</code>.</p>
+<hr>
+
+<h2 id="introduction-to-http">Introduction to HTTP</h2>
+<p>HTTP is a textual protocol, used - as everyone knows - to access the web, but which can be used as a general-purpose inter-application protocol. HTTP requests always have a <em>method</em>, a set of <em>headers</em> and might have <em>parameters</em> and a <em>request body</em>. HTTP responses always have a <em>status</em> and might have a set of <em>headers</em> and a <em>response body</em>. Let us now discuss the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">main methods</a>.</p>
+<h3 id="methods">Methods</h3>
+<h4 id="get">GET</h4>
+<p><code>GET</code> is used to retrieve a resource, given its path on the server (the last part of the URL, e.g. <code>/users</code> for <code>http://localhost:8080/users</code>). <code>GET</code> is designed to be used only for retrieval of a resource. It should be <em>idempotent</em>, meaning that it should not modify the resource on the server. It cannot have a content, but it might have parameters. A response to a <code>GET</code> request should have a body. Parameters are specified in the URL in the form <code>param1=value1&amp;param2=value2&amp;param3=value3</code>.</p>
+<h4 id="put">PUT</h4>
+<p><code>PUT</code> is used to modify an already existing resource, or (somewhat less commonly) to create a new one. It should have a request body, unless an empty resource makes sense for the application. Its response might or might not have a body.</p>
+<h4 id="delete">DELETE</h4>
+<p><code>DELETE</code> is used to destory an already existing resource. It cannot have a request body. Its response might have a body, although that isn't too common.</p>
+<h4 id="post">POST</h4>
+<p><code>POST</code> is used to create a new resource under an existing one, but it also commonly used as a general RPC (remote procedure call) mechanism, meaning you might allow a request on <code>/users/{id}/invite</code> to send an invite to an existing user. However, these kind of resources might be thought of, or redesigned, in terms of a "invite" resource subordinated to an "user". Its request commonly has a body, and so does its response, but neither is required. A common kind of body is <code>application/x-www-form-urlencoded</code>, from a web form.</p>
+<h3 id="statuses">Statuses</h3>
+<p>All HTTP responses have a status. A status is a three-digit number, which identifies whether the request was successful or not. Status codes are grouped in families by the first digit. The most commonly used statuses are:</p>
+<ul>
+<li>
+<p><code>2xx</code> success, of which the most common are:</p>
+<ul>
+<li><code>200 OK</code>, which means that the request was succesful.</li>
+<li><code>201 Created</code>, which means that the resource was created. A server might return <code>200</code> instead of <code>201</code>.</li>
+<li><code>204 No Content</code>, which means that the request was succesful but the response has no body. It is often used for a <code>DELETE</code> request. A server might return <code>200</code> instead of <code>204</code>.</li>
+</ul>
+</li>
+<li>
+<p><code>3xx</code> family, which are designed to handle redirect. Generally the client libraries will handle these automatically, and they are thus transparent for the end application.</p>
+</li>
+<li>
+<p><code>4xx</code> errors, which mean errors in the requests. The most common errors in this family are:</p>
+<ul>
+<li><code>400 Bad Request</code>, meaning that the client has performed a malformed request.</li>
+<li><code>401 Unauthorized</code>, meaning that authentication is required and has failed, or has not yet provided.</li>
+<li><code>403 Forbidden</code>, meaning that the request is valid but the server is refusing to respond to it.</li>
+<li><code>404 Not Found</code>, meaning that the requested resource does not exist. It might also be returned in case the resource exists, but the user cannot access it, to prevent the user discovering that the resource <em>exists</em>.</li>
+<li><code>409 Conflict</code>, meaning that there was a conflict in a request, such as an edit conflict in case of multiple updates.</li>
+</ul>
+</li>
+<li>
+<p><code>5xx</code> errors, which mean a valid request but a processing errors in the server. The most common error in this family is <code>500 Internal Server Error</code>, a generic error code when an error happens in the server.</p>
+</li>
+</ul>
+<h3 id="headers">Headers</h3>
+<p>HTTP requests and responses can have headers, which are helpful to describe the content of the request or response, and can provide additional information to the server. The most common ones in the response are:</p>
+<ul>
+<li><code>Cache-Control</code>, 'Expires', and <code>ETag</code><C-F2>, used to control cache. Caching is a complex topic; please look up <a href="https://developers.google.com/speed/articles/caching">this link</a> for further information.</li>
+<li><code>Content-Length</code>, the length of the response in bytes.</li>
+<li><code>Content-Encoding</code>, which specifies the compression algorithm used in the response. For instance, <code>Content-Encoding: gzip</code>.</li>
+<li><code>Content-Disposition</code>, which instructs the browser to show a "save attachment" dialog. For instance, <code>Content-Disposition: attachment; filename="fname.ext"</code>.</li>
+<li><code>Set-Cookie</code>, which sets a cookie in the client. The client is expected to add a <code>Cookie</code> header with the returned value in any following request. See <a href="https://en.wikipedia.org/wiki/HTTP_cookie">wikipedia</a> for more details.</li>
+</ul>
+<p>Some of the common ones in the request are:</p>
+<ul>
+<li><code>Accept</code>, to specify the acceptables representations of a resource. For instance, <code>Accept: application/json</code>. The server should send the response in the requested format or return an error.</li>
+<li><code>Accept-Encoding</code>, to specify an acceptable compression for a resource. The most common value is <code>Accept-Encoding: gzip, deflate</code>. It is generally handled transparently by the client and the server libraries.</li>
+<li><code>ETag</code>, to handle caching.</li>
+<li><code>Cookie</code>, which should contain the value returned to the server as <code>Set-Cookie</code>.</li>
+</ul>
+<h3 id="authentication-and-statelessness">Authentication and statelessness</h3>
+<p>REST prescribes "statelessness" as one of the main points. However, for a lot of applications, it is much simpler to keep some state in the server - for instance, the current user session. This is much simpler to program, but it also hurts scalability, beecause the session must be shared between the various servers. The most common way to do this is by using cookies: the server will associate a session in its memory to a session token, sent to the client as a cookie. This is the approach natively follower by some server technologies, such as Java's servlets.</p>
+<p>The other option is to avoid keeping state in the server. To do this and implement authentication, HTTP supports various mechanisms. Unfortunately none of these is secure <em>and</em> easy to use. Most websites (such as Twitter or Google) use one of these mechanism for their REST APIs, most commonly <a href="https://en.wikipedia.org/wiki/Basic_access_authentication">HTTP Basic Auth</a>.</p>
+<hr>
+
+<h2 id="json">JSON</h2>
+<p><a href="https://en.wikipedia.org/wiki/JSON">JSON</a> is a format commonly used for encoding request and response body in HTTP requests. JSON is based on JavaScript, but it is a language-independent encoding. The valid data types are:</p>
+<ul>
+<li><em>number</em>: in double precision, for instance <code>3.14</code></li>
+<li><em>string</em>: unicode, double-quoted, backslash escaped, for instance <code>"Hèlló \"Wórlð"</code></li>
+<li><em>boolean</em>: either <code>true</code> or <code>false</code></li>
+<li><em>null</em></li>
+<li><em>array</em>: ordered, comma separated collection of etherogeneous values, for instance <code>[2, true, "Hi"]</code></li>
+<li><em>objects</em>: unordered collection of key-values pair, for instance <code>{"name": "Andrea", age: 28}</code></li>
+</ul>
+<p>JSON got a lot of momentum in the last few years because of its simplicity, the fact that it is human-readable, the ease of implementation of a parser, and its expressiveness. It is also far more compact than XML, which has started to replace.</p>
+<p>Often a JSON HTTP response will be an object, or an array, but that is not necessary. A realistic example of a response that might be returned from a server:</p>
+<div class="codehilite"><pre><span class="p">{</span>
+    <span class="nt">&quot;main&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;temp&quot;</span><span class="p">:</span> <span class="mf">4.51</span><span class="p">,</span>
+        <span class="nt">&quot;pressure&quot;</span><span class="p">:</span> <span class="mi">999</span><span class="p">,</span>
+        <span class="nt">&quot;humidity&quot;</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+        <span class="nt">&quot;temp_min&quot;</span><span class="p">:</span> <span class="mf">3.33</span><span class="p">,</span>
+        <span class="nt">&quot;temp_max&quot;</span><span class="p">:</span> <span class="mi">6</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;weather&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;main&quot;</span><span class="p">:</span> <span class="s2">&quot;Clear&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;sky is clear&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<hr>
+
+<h2 id="an-example-client">An example client</h2>
+<p>Let us now write a full python program that will perform an HTTP request to a real web server. The service we'll use is <a href="http://openweathermap.org">OpenWeatherMap.org</a>, which exposes a free REST API for weather forecast. A <code>GET</code> request on the url <a href="http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&amp;units=metric&amp;q=CITY">http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&amp;units=metric&amp;q=CITY</a> will return a JSON object representing the weather forecast for the given CITY. With this in mind, we can write our little program:</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">httplib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&quot;Please give a city as argument&quot;</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">city</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">httplib</span><span class="o">.</span><span class="n">HTTPConnection</span><span class="p">(</span><span class="s">&quot;api.openweathermap.org&quot;</span><span class="p">)</span>
+<span class="n">conn</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s">&quot;GET&quot;</span><span class="p">,</span> <span class="s">&quot;/data/2.5/forecast/daily?mode=json&amp;units=metric&amp;q=&quot;</span> <span class="o">+</span> <span class="n">city</span><span class="p">)</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">getresponse</span><span class="p">()</span>
+
+<span class="c"># It should print 200 OK</span>
+<span class="c"># print resp.status, resp.reason</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+<span class="n">day</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">for</span> <span class="n">forecast</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;list&#39;</span><span class="p">]:</span>
+    <span class="k">print</span> <span class="s">&quot;In </span><span class="si">%d</span><span class="s"> days the temperature will be </span><span class="si">%d</span><span class="s">, and the wheather </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">day</span><span class="p">,</span> <span class="n">forecast</span><span class="p">[</span><span class="s">&#39;temp&#39;</span><span class="p">][</span><span class="s">&#39;day&#39;</span><span class="p">],</span> <span class="n">forecast</span><span class="p">[</span><span class="s">&#39;weather&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;description&#39;</span><span class="p">])</span>
+    <span class="n">day</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+
+
+<p>Let us look at what has gone on the wire. The request was something like:</p>
+<div class="codehilite"><pre><span class="nf">GET</span> <span class="nn">/data/2.5/forecast/daily?mode=json&amp;units=metric&amp;q=CITY</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.openweathermap.org</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Cache-Control</span><span class="o">:</span> <span class="l">no-cache</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span>
+<span class="na">Pragma</span><span class="o">:</span> <span class="l">no-cache</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip,deflate,sdch</span>
+</pre></div>
+
+
+<p>While the response might have been:</p>
+<div class="codehilite"><pre><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Allow-Credentials</span><span class="o">:</span><span class="l">true</span>
+<span class="na">Access-Control-Allow-Methods</span><span class="o">:</span><span class="l">GET, POST</span>
+<span class="na">Access-Control-Allow-Origin</span><span class="o">:</span><span class="l">*</span>
+<span class="na">Connection</span><span class="o">:</span><span class="l">keep-alive</span>
+<span class="na">Content-Type</span><span class="o">:</span><span class="l">application/json; charset=utf-8</span>
+<span class="na">Date</span><span class="o">:</span><span class="l">Wed, 12 Feb 2014 19:53:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span><span class="l">nginx</span>
+<span class="na">Transfer-Encoding</span><span class="o">:</span><span class="l">chunked</span>
+
+<span class="p">{</span><span class="nt">&quot;cod&quot;</span><span class="p">:</span><span class="s2">&quot;200&quot;</span><span class="p">,</span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="mf">0.0269</span><span class="p">,</span><span class="nt">&quot;city&quot;</span><span class="p">:{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="s2">&quot;6691831&quot;</span><span class="p">,</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="nt">&quot;coord&quot;</span><span class="p">:{</span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="mf">12.458</span><span class="p">,</span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="mf">41.9024</span><span class="p">},</span><span class="nt">&quot;country&quot;</span><span class="p">:</span><span class="s2">&quot;Vatican City&quot;</span><span class="p">,</span><span class="nt">&quot;population&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span><span class="nt">&quot;cnt&quot;</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span><span class="nt">&quot;list&quot;</span><span class="p">:[{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392202800</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">9.35</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">7.63</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">9.35</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">7.63</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">9.35</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">9.35</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1014.66</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">802</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Clouds&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;scattered clouds&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;03n&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">3.88</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">340</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">32</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392289200</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">11.57</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">5.92</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">12.14</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">12.14</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">10.86</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">5.92</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1018.03</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Rain&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;light rain&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;10d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">4.81</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">201</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">56</span><span class="p">,</span><span class="nt">&quot;rain&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392375600</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">13.65</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">8.12</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">13.76</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">8.12</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">11.01</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">11.12</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1017.05</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">89</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">800</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Clear&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;sky is clear&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;01d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">7.06</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">332</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392462000</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">13.59</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">6.48</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">13.86</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">12.08</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">12.46</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">6.48</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1021.8</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">96</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">800</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Clear&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;sky is clear&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;02d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">3.97</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">135</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">8</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392548400</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">14.41</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">12.19</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">14.61</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">13.47</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">14.33</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">12.19</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1018.54</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">89</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Rain&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;light rain&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;10d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">10.56</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">157</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">92</span><span class="p">,</span><span class="nt">&quot;rain&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392634800</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">14.18</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">11.49</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">14.18</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">11.49</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">11.89</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">11.88</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1021.54</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">92</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">800</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Clear&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;sky is clear&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;01d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">3.56</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">223</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">},{</span><span class="nt">&quot;dt&quot;</span><span class="p">:</span><span class="mi">1392721200</span><span class="p">,</span><span class="nt">&quot;temp&quot;</span><span class="p">:{</span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="mf">13.54</span><span class="p">,</span><span class="nt">&quot;min&quot;</span><span class="p">:</span><span class="mf">11.67</span><span class="p">,</span><span class="nt">&quot;max&quot;</span><span class="p">:</span><span class="mf">13.54</span><span class="p">,</span><span class="nt">&quot;night&quot;</span><span class="p">:</span><span class="mf">12.2</span><span class="p">,</span><span class="nt">&quot;eve&quot;</span><span class="p">:</span><span class="mf">12.57</span><span class="p">,</span><span class="nt">&quot;morn&quot;</span><span class="p">:</span><span class="mf">11.67</span><span class="p">},</span><span class="nt">&quot;pressure&quot;</span><span class="p">:</span><span class="mf">1011.41</span><span class="p">,</span><span class="nt">&quot;humidity&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="nt">&quot;weather&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">500</span><span class="p">,</span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="s2">&quot;Rain&quot;</span><span class="p">,</span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;light rain&quot;</span><span class="p">,</span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="s2">&quot;10d&quot;</span><span class="p">}],</span><span class="nt">&quot;speed&quot;</span><span class="p">:</span><span class="mf">8.1</span><span class="p">,</span><span class="nt">&quot;deg&quot;</span><span class="p">:</span><span class="mi">224</span><span class="p">,</span><span class="nt">&quot;clouds&quot;</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span><span class="nt">&quot;rain&quot;</span><span class="p">:</span><span class="mf">1.2</span><span class="p">}]}</span>
+</pre></div>
+
+
+<p>This concludes our introduction to REST apis, HTTP and JSON.</p>
+
+    <hr>
+    
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="index.html">Back to the index</a>
+        </div>
+    </div>
+
+    <hr>
+</div>
+</body>
+</html>

@@ -2,13 +2,7 @@
 
 ## Introduction
 
-[REST](https://en.wikipedia.org/wiki/Representational_state_transfer) is an architectural paradigm for designing web applications, based on HTTP 1.1 and URLs (also known as URIs). The main design points are:
-
-- clear separation of clients and servers
-- stateless
-- cacheable
-- transparently layered (the client doesn't know to which specific machine it is talking)
-- uniform interface, which we'll now discuss in detail.
+[REST](https://en.wikipedia.org/wiki/Representational_state_transfer) is an architectural paradigm for designing web applications, based on HTTP 1.1 and URLs (also known as URIs).
 
 The central principle is the concept of _resources_. A server can provide access to multiple resources via URLs. The clients and servers communicates _representations_ of the resources and access them only using the principal methods of the HTTP 1.1 standard:
 
@@ -98,7 +92,7 @@ Some of the common ones in the request are:
 
 REST prescribes "statelessness" as one of the main points. However, for a lot of applications, it is much simpler to keep some state in the server - for instance, the current user session. This is much simpler to program, but it also hurts scalability, beecause the session must be shared between the various servers. The most common way to do this is by using cookies: the server will associate a session in its memory to a session token, sent to the client as a cookie. This is the approach natively follower by some server technologies, such as Java's servlets.
 
-The other option is to avoid keeping state in the server. To do this and implement authentication, HTTP supports various mechanisms. Unfortunately none of these is secure _and_ easy to use. Most websites (such as Twitter or Google) use one of these mechanism for their REST APIs, most commonly [HTTP Basic Auth](https://en.wikipedia.org/wiki/Basic_access_authentication).
+The other option is to avoid keeping state in the server. To do this and implement authentication, HTTP supports various mechanisms. Unfortunately none of these is both secure _and_ easy to use. Most websites (such as Twitter or Google) use one of these mechanism for their REST APIs, most commonly [HTTP Basic Auth](https://en.wikipedia.org/wiki/Basic_access_authentication).
 
 <hr>
 

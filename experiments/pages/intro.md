@@ -1,7 +1,7 @@
 We will discuss how to write modern web applications, based on the technologies called "AJAX". The core design for this class of applications is as follows:
 
 - the server does not render templates, such as JSP or similar, but rather sends the client "raw data" via a set of REST APIs, often in form of JSON;
-- the client (the webpage) performs multiple XmlHttpRequests (AJAX requests) to the server and applies templates to render the data directly in the browser.
+- the client (the webpage) performs multiple HTTP requests using `XmlHttpRequest` (AJAX requests) to the server and applies templates to render the data directly in the browser.
 
 This approach was started by Google's GMail, the first modern AJAX application. It has many advantages over the classic "server-side-templates" model:
 

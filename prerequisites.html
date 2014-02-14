@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en" ng-app>
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>AngularJS - A crash course - Prerequisites</title>
+
+        <meta name="description" content="A crash course in AngularJS - Prerequisites">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>AngularJS Crash Course</h1>
+                    <h2>Prerequisites</h2>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h1>HTTP</h1>
+                </section>
+
+                <section>
+                    <h2>HTTP - Introduction</h2>
+                    <ul>
+                        <li>Textual-based client-server protocol.</li>
+                        <li>As everyone know, it's the basis of the web.</li>
+                        <li>Can transport any kind of data.</li>
+                        <li>Various <i>methods</i>, each with a different semantic. The main are:
+                        <ul>
+                            <li><code>GET</code></li>
+                            <li><code>POST</code></li>
+                            <li><code>PUT</code></li>
+                            <li><code>DELETE</code></li>
+                        </ul></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP - Statuses</h2>
+                    <ul>
+                        <li>Requests and responses can have <i>headers</i> and a <i>body</i>.</li>
+                        <li>Responses always start with a <i>status code</i>.</li>
+                        <li>Main statuses codes are:
+                        <ul>
+                            <li><code>2xx</code> family: success. <code>200 OK</code> is the most common.</li>
+                            <li><code>3xx</code> family: redirect. Generally handled automatically by the library.</li>
+                            <li><code>4xx</code> family: request error. Most common ones are <code>404 Not Found</code> and <code>409 Conflict</code>.</li>
+                            <li><code>5xx</code> family: server error. The most common one is <code>500 Internal Server Error</code>.</li>
+                        </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP - Headers</h2>
+                    <ul>
+                        <li>Main kind of headers:
+                        <ul>
+                            <li>Cache-related;</li>
+                            <li><code>Accept-Content</code> (request) and <code>Content-Type</code> (response) – values are mime types. Used to negotiate the body representation (XML, JSON, ...);</li>
+                            <li>Cookies-related (see next slide);</li>
+                            <li><code>Content-Disposition</code>, set in the response to instruct the browser to download an attachment.</li>
+                        </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP - Cookies</h2>
+                    <ul>
+                        <li>Cookies are set from the server via <code>Set-Cookie</code>.</li>
+                        <li>The client should send back the cookie to the server in the following responses.</li>
+                        <li>Commonly uses as a session key: the server stores the session somewhere and uses the cookie to identify the client.</li>
+                        <li>This mechanism is provided automatically as an API by the java Servlet framework (and many others).</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP - URL and Methods</h2>
+                    <ul>
+                        <li>All requests can have parameters in the URL, in the form <a>/a/b/c?param=value&amp;p2=v2</a>.</li>
+                        <li>Each HTTP Method has a different semantic:
+                        <ul>
+                            <li><code>GET</code> should be used to retrieve a resource from the server. It cannot have a request body. Its response often has a body.</li>
+                            <li><code>POST</code> should be used to create a new resource under an existing one. Often used to perform a sort of RPC. The request can have a body.</li>
+                            <li><code>PUT</code> should be used to update an existing resource or create a new one. Its request usually has a body.</li>
+                            <li><code>DELETE</code> should be used to destroy an existing resource. The request cannot have a body. The response usually doesn't have a body.</li>
+                        </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP – Browser forms</h2>
+                    <ul>
+                        <li>Browsers only support two methods for submitting forms: <code>GET</code> or <code>POST</code>.</li>
+                        <li>Performing a <code>GET</code> request encodes the form values in the URL: so you'll see a request to <a>/form/action?field=value&amp;field=value</a>.</li>
+                        <li>Performing a <code>POST</code> request encodes the form values in the requst body, using the encoding called <code>application/x-www-form-urlencoded</code>.</li>
+                        <li>File uploads are also <code>POST</code>, with a different encoding: <code>multipart/form-data</code>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP – AJAX requests</h2>
+                    <ul>
+                        <li>AJAX is a paradigm made popular by GMail in 2007.</li>
+                        <li>Paradigm of performing asynchronous HTTP calls, using the browser api <code>XmlHttpRequest</code>.</li>
+                        <li>Helps building dynamic interfaces, because it doesn't require a full page reload. The server can only send back a small amount of data and the web page, via JavaScript, can use the response content to update the GUI.</li>
+                        <li>Fundamentally different from HTML forms.</li>
+                        <li>Supports all HTTP methods.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>HTTP – Sample request</h2>
+                    <p>An example request (you can do it via telnet):</p>
+                    <pre><code class="language-http">
+GET /index.html HTTP/1.0
+Accept-Encoding: gzip
+                    </code></pre>
+
+                    <p>Its response:</p>
+                    <pre><code class="language-http">
+HTTP/1.0 302 Found   
+Content-Type: text/html; charset=UTF-8 
+Content-Length: 258      
+
+&lt;html&gt;...
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h1>JSON</h1>
+                </section>
+
+                <section>
+                    <h2>JSON - introduction</h2>
+                    <ul>
+                        <li>JSON is an human readable document encoding format</li>
+                        <li>Based on JavaScript syntax, but it's language independent</li>
+                        <li>Became very popular since 2009</li>
+                        <li>Advantages:
+                        <ul>
+                            <li>Smaller (byte-wise) than XML</li>
+                            <li>human readable</li>
+                            <li>powerful and expressive</li>
+                            <li>very simple to parse</li>
+                            <li>native (i.e. <i>fast!</i>) parsers built in all modern browsers, meaning IE8+ and Android 2+.</li>
+                        </ul>
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>JSON – An example</h2>
+
+                    <pre><code class="language-json">
+{
+    "main": {
+        "temp": 4.51,
+        "pressure": 999,
+        "humidity": 75,
+        "temp_min": 3.33,
+        "temp_max": 6
+    },
+    "weather": {
+        "main": "Clear",
+        "description": "sky is clear"
+    }
+}                   
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h2>JSON – Data types</h2>
+
+                    <ul>
+                        <li><i>Number,</i> always double precision</li>
+                        <li><i>String,</i> with double quotes, Unicode</li>
+                        <li><i>Boolean,</i> literal <code>true</code> or <code>false</code></li>
+                        <li><i>Null</i></li>
+                        <li><i>Array,</i> ordered list of heterogeneous data types</li>
+                        <li><i>Object,</i> unordered collection of key-value pairs. All keys are strings; values can be any data type.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>REST</h1>
+                </section>
+
+                <section>
+                    <h2>REST - introduction</h2>
+                    <ul>
+                        <li>Principle of addressing resources via HTTP, through URLs.</li>
+                        <li>Resources are nowadays usually encoded in JSON, but until 2010 it was common to encode them in XML.</li>
+                        <li>Idea: the server exposes access to the resources (the data) via HTTP requests.</li>
+                        <li>Not a new technology (it's just HTTP): rather it's an application design pattern.</li>
+                        <li>Designed for scalability; since it's just HTTP, standard proxies and load-balancing automatically work.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>REST - Example resource</h2>
+                    <ul>
+                        <li><code>GET</code> on <a>/users</a>: returns an array of objects, each representing the users.</li>
+                        <li><code>GET</code> on <a>/users/{id}</a>: returns an object representing one user, given its id. A <code>404</code> will be returned in case the given id does not map to any user.</li>
+                        <li><code>POST</code> on <a>/users</a>: creates a new user.</li>
+                        <li><code>PUT</code> on <a>/users/{id}</a>: updates an existing user.</li>
+                        <li><code>DELETE</code> on <a>/users/{id}</a>: removes an existing user. </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>REST - Subordinate resources</h2>
+                    <ul>
+                        <li>A resource can have subresources, also known as subordinate resources.</li>
+                        <li>Example: you might represent an user's email through an URL like <a>/users/{id}/mail</a>.</li>
+                        <li>Sometimes abused to perform a sort of RPC, via a POST resource on a sub-url.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>Modern web application design</h1>
+                </section>
+
+                <section>
+                    <h2>The old approach</h2>
+                    <ul>
+                        <li>The server receives a page requests.</li>
+                        <li>It retrieves the data from some database.</li>
+                        <li>It then applies a JSP (or similar) rendering template.</li>
+                        <li>The webpage is returned to the browser.</li>
+                        <li>At each navigation step the client requests a new page.</li>
+                        <li>Form submissions are synchronous, i.e. <br>
+                        <code>&lt;form action="xxx" method="POST"&gt;</code></li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>The modern (AJAX) approach</h2>
+                    <ul>
+                        <li>The server implements a set of REST apis to retrieve and manipulate the data.</li>
+                        <li>The client is a web page loaded just once (at the beginning) that performs AJAX requests to obtain the content.</li>
+                        <li>Each navigation step, or form submission, never reload the page, but just alter the content via JavaScript.</li>
+                        <li>A few years back: the GUI is updated via <a href="http://jquery.com/">jQuery</a>, or by hand via lower-level APIs.</li>
+                        <li>More recently: the GUI is automatically updated by the framework, for instance <a href="http://www.sencha.com/products/extjs/">ExtJS</a>, <a href="http://angularjs.org/">AngularJS</a>, <a href="http://emberjs.com/">EmberJS</a>, <a href="http://knockoutjs.com/">Knockout</a>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Advantages of the new approach</h2>
+                    <ul>
+                        <li>Full page reload is <i>slow</i>: the browser must load and parse a full HTML body. Plus, for each included CSS or JavaScript file, the browser must perform another HTTP request. Very slow in a mobile world: can easily take 3 seconds and 40 requests before all the data has been received!</li>
+                        <li>With AJAX, a request and response can be much smaller, and thus much faster to send and receive.</li>
+                        <li>Browsers are getting more and more optimized for this kind of applications. Modern apps can feel instantaneous.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>JavaScript and callbacks</h1>
+                </section>
+
+                <section>
+                    <h2>JavaScript - introduction</h2>
+                    <ul>
+                        <li>Java-like syntax, but it's a trick: the semantics are <i>really</i> different.</li>
+                        <li>Everything is an object:
+                    <pre><code class="language-javascript">
+                    "hi".length
+                    function foo() {}
+                    foo.name = "bar";
+                    </code></pre>
+                        </li>
+                        <li><i>Prototypal</i> inheritance: no classes in a classic sense. Rather, objects have a prototype and inherit all its properties.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>JavaScript - functions</h2>
+                    <ul>
+                        <li>Very common to define anonymous functions:
+                    <pre><code class="language-javascript">
+var v = function() { return 42; }
+                    </code></pre>
+                        </li>
+                        <li>The right-hand side is a function expression; it can be returned as a value from another function, stored in a variable, passed as argument to another function.</li>
+                        <li>A function defined inside another function has a <i>closure</i> to the parent function's variables.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>JavaScript - callbacks</h2>
+                    <ul>
+                        <li>Very common pattern in AJAX: perform an HTTP request and pass as argument a function to invoke when the request is done (a callback):
+                    <pre><code class="language-javascript">
+$.get('/users', function(data) {
+    alert(data);
+});
+                    </code></pre>
+                        </li>
+                        <li>JQuery (the <code>$</code> object) will instruct the web browser to perform a <code>GET</code> request on the <a>/users</a> URL.</li>
+                        <li>When the request is complete, the JSON response is parsed and transformed into a JavaScript object.</li>
+                        <li>Finally, our callback is invoked with the values returned from the server. The invocation might never happen in case the server returns an error code!</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with the prerequisites. You can start with <a href="lesson01.html">the actual course.</a>
+                    </p>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+        <script src="js/angular.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+    </body>
+</html>

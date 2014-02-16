@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>AngularJS - A crash course - Lesson 3</title>
+
+        <meta name="description" content="A crash course in AngularJS - Lesson 3">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <script src="js/angular.min.js"></script>
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>AngularJS Crash Course</h1>
+                    <h3>Lesson 3 - Routing and views</h3>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Routing basics</h2>
+                    <p>
+                    By now, we have seen how to design simple applications with AngularJS. However, we still miss one key component for designing real applications. This component is what AngularJS <i>routing</i>.
+                    </p>
+                    <p>
+                    Let's make an example: suppose your application manages a product catalog. You might then want to have a few pages on your app: the product list, a product detail page, and a product insertion page.
+                    </p>
+                    <p>
+                    The routing mechanism in AngularJS is designed to allow you to design the application around your pages.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Example</h2>
+                    <pre class="javascript"><code style="max-height: 600px">var app = angular.module('productManager', []);
+
+app.config(function($routeProvider) {
+    $routeProvider
+        .when('/products', {
+            templateUrl: 'app/products_list.tpl.html',
+            controller: 'ProductListCtrl'
+        })
+        .when('/products/insert', {
+            templateUrl: 'app/product_insert.tpl.html',
+            controller: 'ProductInsertCtrl'
+        })
+        .when('/products/view/:id', {
+            templateUrl: 'app/product_view.tpl.html',
+            controller: 'ProductViewCtrl',
+            resolve: {
+                id: function ($route) {
+                    return $route.current.params.id;
+                }
+            }
+        })
+        .otherwise({
+            redirectTo: '/products'
+        });
+});</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>This example starts by defining a new module, <code>productManager</code>.</li>
+                        <li>We call the function <code>config</code> on the module, passing it a function. This function will be called just before the application starts running. This is a good place to perform various "configuration".</li>
+                        <li>A technical but important detail: in the config phase you cannot ask AngularJS to inject you a service; however you can ask for a <i>service provider</i>. To simplify: when you define a service, you can say that it supports a configuration phase. For instance, the built-in <code>$route</code> service supports a configuration phase, in which you can register your routes.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="javascript"><code>$routeProvider
+    .when('/products', {
+        templateUrl: 'app/products_list.tpl.html',
+        controller: 'ProductListCtrl'
+    })</code></pre>
+
+                    <ul>
+                        <li>The function <code>when</code> of the <code>$routeProvider</code> allows you to register a route. What this call means is: when the user navigates (through an hyperlink or by changing directly the URL in the browser's address bar) to <a>/products</a>, show him the content of the file <a>app/products_list.tpl.html</a> using the controller <code>ProductListCtrl</code>.</li>
+                        <li>But <i>where</i> should AngularJS display the content of the template? AngularJS expects that you have defined a node with the directive <code>ng-view</code> applied: the content of this node will be used to display the route's content.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>&lt;body&gt;
+    ...
+    &lt;div ng-view&gt;&lt;/div&gt;
+    ...
+&lt;/body&gt;</code></pre>
+
+                    <ul>
+                        <li>Generally you will place the <code>ng-view</code> element in an appropriate page in your layout, for example under the header, but obviously that is up to you.</li>
+                        <li>Just remember not to place any content inside of the node: AngularJS will manage the node for you.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="javascript"><code>$routeProvider
+    .otherwise({
+        redirectTo: '/products'
+    });</code></pre>
+
+                    <ul>
+                        <li>The <code>otherwise</code> function will allow you to handle all the other URL. You will generally use it to either show a "404" page, or to redirect the user to the homepage or similar.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="javascript"><code>$routeProvider
+    .when('/products/view/:id', {
+        templateUrl: 'app/product_view.tpl.html',
+        controller: 'ProductViewCtrl',
+        resolve: {
+            id: function ($route) {
+                return $route.current.params.id;
+            }
+        }
+    })</code></pre>
+
+                    <ul>
+                        <li>You can specify parametric parts in your route, by using the syntax <code>:parameter</code>.</li>
+                        <li>A <code>resolve</code> object will allow you to pass parameters to your controller, based (generally, but not necessarily) on the route.</li>
+                        <li>In this case, we are passing the parameter <code>id</code> to the controller.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="javascript"><code>app.factory('productsService', function($http) {
+    return {
+        findProductById: function(id) {
+            return $http.get('/products/' + id)
+                .then(function(response) {
+                    return response.data;
+                });
+        }
+    };
+});
+
+app.controller('ProductViewCtrl', function($scope, productsService, id) {
+    productsService.findProductById(id)
+        .then(function(product) {
+            $scope.product = product;
+        };
+});</code></pre>
+
+                    <ul>
+                        <li>This is an example of how you might implement the <code>ProductViewCtrl</code>. Notice how it takes an <code>id</code> parameter, which will be <i>injected</i> by AngularJS in the same way as <code>productsService</code>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Notice also how we have defined a simple service to split the controller's logic from the model's logic. Generally, it's a good design to let a service talk to your server - and thus handle the <i>model</i> - and let the controller focus on the UI.</li>
+                        <li>It's likely you'll want to add to your services various functions, for instance to handle the "get the products list", to edit or insert a new product and to delete an existing product. They all will fit well in your service. Your controllers will all be small and focused on the view they are attached to.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with this lesson. Thank you for reading.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Further resources</h2>
+                    <ul>
+                        <li><a href=http://fastandfluid.com/publicdownloads/AngularJSIn60MinutesIsh_DanWahlin_May2013.pdf">AngularJS in 60 minutes</a> is an excellent, short introduction.</li>
+                        <li><a href="http://www.thinkster.io/">Thinkster</a> has an excellent, in depth tutorial.</li>
+                        <li><a href="https://egghead.io/lessons">Egghead videos</a> are an excellent full course in AngularJS.</li>
+                        <li><a href="http://www.ng-newsletter.com/posts/">Ng-Newsletter</a> has a lot of interesting and well written articles.</li>
+                        <li><a href="http://pascalprecht.github.io/angular-translate/#/guide">angular-translate</a> is a great library to simply add internationalization to your applications.</li>
+                        <li><a href="http://angular-ui.github.io/bootstrap/">angular-ui</a> is a set of extremely useful components to create modern, good looking web applications.</li>
+                        <li><a href="https://stackoverflow.com/questions/tagged/angularjs">Stack Overflow</a> has <i>a lot</i> of question and answers regarding AngularJS development.</li>
+                    </ul>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+    </body>
+</html>

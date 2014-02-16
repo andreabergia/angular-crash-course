@@ -36,7 +36,7 @@
             <div class="slides">
                 <section>
                     <h1>AngularJS Crash Course</h1>
-                    <h3>Lesson 2 - Modules and Services</h3>
+                    <h3>Lesson 2 - Modules, services and custom filters</h3>
                     <p>
                         <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
                     </p>
@@ -152,6 +152,118 @@ angular.module('module02', []).
                         <li>We won't use this syntax often to save space, but you should always use it in real code. You may want to check out <a href="https://egghead.io/lessons/angularjs-ngmin">ngmin</a> if you want to automate it.</li>
                     </ul>
                 </section>
+
+                <section>
+                    <h2>Custom filters</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+angular.module('module03', []).
+    filter('parenthesis', function() {
+        return function(input) {
+            var n = Number(input);
+            return n &lt; 0 ? "(" + Math.abs(n) + ")" : n;
+        }
+    });
+&lt;/script&gt;
+&lt;div&gt;
+    Positive: {&#8203;{42 | parenthesis}}, negative: {&#8203;{-24 | parenthesis}}.
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        angular.module('module03', []).
+                            filter('parenthesis', function() {
+                                return function(input) {
+                                    var n = Number(input);
+                                    return n < 0 ? "(" + Math.abs(n) + ")" : n;
+                                }
+                            });
+                        </script>
+                        <div>
+                            Positive: {{42 | parenthesis}}, negative: {{-24 | parenthesis}}.
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>To define a new, custom filter, you can call the function <code>filter</code> on a module. The returned object will be the function called when the filter is applied.</li>
+                        <li>In our example, we have defined a simple <code>parenthesis</code> filter that displays a negative number surrounding it with parenthesis, as it is common in accounting.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Injecting filters</h2>
+                    <pre class="html"><code>
+&lt;script&gt;
+angular.module('module04', ['module03']).
+    controller('Sample03Controller', function($scope, parenthesisFilter) {
+        $scope.value = parenthesisFilter(-42);
+    });
+&lt;/script&gt;
+&lt;div ng-controller="Sample03Controller"&gt;
+    The value is {&#8203;{value}}.
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        angular.module('module04', ['module03']).
+                            controller('Sample03Controller', function($scope, parenthesisFilter) {
+                                $scope.value = parenthesisFilter(-42);
+                            });
+                        </script>
+                        <div ng-controller="Sample03Controller">
+                            The value is {{value}}.
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>As you can see, you can ask AngularJS to inject a filter in pretty much the same way you ask for a service: by defining a parameter named <i>filternameFilter</i>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="html"><code>
+&lt;script&gt;
+angular.module('module04').
+    controller('Sample04Controller', function($scope, $filter) {
+        $scope.value = $filter('parenthesis')(-42);
+    });
+&lt;/script&gt;
+&lt;div ng-controller="Sample04Controller"&gt;
+    The value is {&#8203;{value}}.
+&lt;/div&gt;
+                    </code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <script>
+                        angular.module('module04').
+                            controller('Sample04Controller', function($scope, $filter) {
+                                $scope.value = $filter('parenthesis')(-42);
+                            });
+                        </script>
+                        <div ng-controller="Sample04Controller">
+                            The value is {{value}}.
+                        </div>
+                    </div>
+
+                    <ul>
+                        <li>You can also ask AngularJS to inject the <code>$filter</code> service. This is a service that you can call as a function, passing the name of the filter. The result will be the filter's function.</li>
+                        <li>So, in our example, <code>$filter('parenthesis') === parenthesisFilter</code>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with this lesson. In the <a href="lesson03.html">next part</a>, we'll cover views and routing.
+                    </p>
+                </section>
             </div>
         </div>
 
@@ -179,7 +291,7 @@ angular.module('module02', []).
         </script>
 
         <script>
-            angular.module('lesson02', ['module01', 'module02']);
+            angular.module('lesson02', ['module01', 'module03', 'module04']);
         </script>
     </body>
 </html>

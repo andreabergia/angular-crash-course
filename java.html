@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Java and Spring Crash Course</title>
+
+        <meta name="description" content="A crash course in Java and Spring">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <script src="js/angular.min.js"></script>
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Java and Spring Crash Course</h1>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Annotations</h2>
+
+                    <ul>
+                        <li>Annotations were added to Java in version 5. An annotation is a marker on a class, method, parameter or variable.</li>
+                        <li>The syntax is: <code>@Annotation object</code>.</li>
+                        <li>The concept of annotations has no built-in semantics: i.e. what an annotation means depends on the actual annotation type.</li>
+                        <li>For instance; <code>@Override</code> is an annotation that you can <i>(really should)</i> place on methods that you override from a base class or (Java 6) an interface.</li>
+                        <li>Annotations might be used only as markers in the source code, or they might be <i>retained</i> and queried at runtime, using reflection.</li>
+                        <li>The second kind is extremely useful and very often used in modern frameworks, such as Servlets 3, Spring and Java EE 6.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Best practices</h2>
+
+                    <ul>
+                        <li>Use <code>List&lt;T&gt;</code> for modeling ordered collections, and <code>Map&lt;K, V&gt;</code> for associative arrays.</li>
+                        <li>Declare your collection variables as the interfaces, not the concrete class.</li>
+                    </ul>
+                    <pre class="java"><code>// Yes
+List&lt;Long&gt; v = new ArrayList&lt;&gt;();
+Map&lt;Long, String&gt; m = new HashMap&lt;&gt;();
+
+// No
+ArrayList&lt;Long&gt; v = new ArrayList&lt;&gt;();
+HashMap&lt;Long, String&gt; v = new HashMap&lt;&gt;();</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Consider implementing <code>equals</code> and <code>hashCode</code> for your classes.</li>
+                        <li>Mark overridden methods with <code>@Override</code> (any IDE will do it automatically, though).</li>
+                        <li>Declare your member variables as <code>private</code> and create a getter/setter pair (any IDE offers shortcuts).</li>
+                    </ul>
+                    <pre class="java"><code>public class Point {
+    private double x;
+    private double y;
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() { return x; }
+    public void setX(double x) { this.x = x; }
+    public double getY() { return y; }
+    public void setY(double y) { this.y = y; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (! (o instanceof Point)) {
+            return false;
+        }
+        Point other = (Point)o;
+        return Objects.equals(this.x, other.x) &amp;&amp; Objects.equals(thix.y, other.y);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.x, this.y);
+    }
+}
+</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Whenever possible, make your domain objects <i>immutable</i>: declare all member variables <code>final</code> (<code>const</code> in C++) and set them only in the constructor: immutable objects are inherently thread-safe and thus can be shared without any need for locks.</li>
+                        <li>Consider also marking the class as <code>final</code> (i.e. can't be used as base class).</li>
+                    </ul>
+                    <pre class="java"><code>public class Point {
+    private final double x;
+    private final double y;
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() { return x; }
+    public double getY() { return y; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (! (o instanceof Point)) {
+            return false;
+        }
+        Point other = (Point)o;
+        return Objects.equals(this.x, other.x) &amp;&amp; Objects.equals(thix.y, other.y);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.x, this.y);
+    }
+}
+</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Don't abuse inheritance: you should almost always use composition and not inheritance for code reuse.</li>
+                        <li>Realistically, very seldom you'll inherit from anything that is not an abstract class.</li>
+                        <li>However, you'll <i>often</i> implement one (or more) interfaces in your class!</li>
+                        <li>Write your code to use only interfaces and not concrete classes: this helps you keep things decoupled and is fundamental for unit tests.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li><i>Learn</i> object-oriented design patterns! At the very least, know Observable, Decorator and Proxy, Singleton, Strategy, Command.</li>
+                        <li>Consider using the Strategy pattern instead of a switch on an enumeration.</li>
+                        <li>Know Singleton, but <i>don't</i> use it: it creates a very strong coupling and it's painful to unit test. We'll see later how Spring helps you with <i>logical</i> singletons.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Unit tests</h2>
+                    <ul>
+                        <li>You should try to implement unit tests for all your code. Ideally, you should do TDD; realistically, unit tests the <i>hard</i> part of the code (i.e. not a getter or setter).</li>
+                        <li>The de-facto standard in Java is <a href="http://junit.org/">JUnit 4</a>.</li>
+                        <li>Assuming you are using the standard Maven project layout (and really, you <i>should</i>), for a class in <a>src/main/java/com/company/Foo.java</a> you should place the unit tests in <a>src/test/java/com/company/FooTest.java</a>.</li>
+                        <li>An unit test class is a simple class, whose methods are annotated with <code>@Test</code>.</li>
+                        <li>All IDEs provide shortcuts to run unit tests and to display their results. Maven also runs them as part of the compilation process.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Unit tests should test that your functions, given an input, return an expected output (or throw an expected exception).</li>
+                        <li>You'll use <i>assertions</i> in your unit tests to work with JUnit.</li>
+                        <li>For instance, you can use <code>assertTrue</code> to make the unit test fails when the argument is false; <code>assertEquals</code> to compare two objects and so on.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code style="max-height: 700px">public class PointTest {
+    @Test
+    public void testTranslation() {
+        Point a = new Point(3, 4);
+        assertEquals(new Point(3, 5), a.translate(0, 1));
+        assertEquals(new Point(2, 4), a.translate(-1, 0));
+        assertEquals(new Point(3, 4), a.translate(0, 0));
+    }
+
+    @Test
+    public void testUnit() {
+        assertTrue(new Point(1, 1).isUnit());
+        assertFalse(new Point(1, 2).isUnit());
+    }
+
+    @Test(expected=NullPointerException.class)
+    public void testAddSegmentNull1stParam() {
+        Point.add(null, new Point(0, 0));
+    }
+}
+</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Unit test classes can have <i>one</i> method annotated with <code>@Before</code> to setup the test. This method gets called before <i>each</i> test function.</li>
+                        <li>Similarly, you can have a <code>@After</code> method to clean up.</li>
+                        <li>These methods are commonly used to create temporary files for the tests, or dummy databases.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code style="max-height: 700px">public class DbIteratorTest {
+    private Connection connection;
+
+    @Before
+    public void setupDb() throws SQLException {
+        connection = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "");
+        connection.createStatement().execute("CREATE TABLE Events (CODE VARCHAR2(20), DESC0 VARCHAR2(20))");
+        connection.createStatement().execute("INSERT INTO Events (CODE, DESC0) VALUES ('EV_01', 'EV01.desc')");
+        connection.createStatement().execute("INSERT INTO Events (CODE, DESC0) VALUES ('EV_02', 'EV02.desc')");
+        connection.createStatement().execute("INSERT INTO Events (CODE, DESC0) VALUES ('EV_03', 'EV03.desc')");
+    }
+
+    @After
+    public void tearDownDb() throws SQLException {
+        connection.close();
+    }
+
+    @Test
+    public void testDbImportStream() throws FieldNotFoundException {
+        ImportStream importStream = new DbImportStream("SELECT Events.* FROM Events ORDER BY Events.code", connection);
+        assertNotNull(importStream);
+
+        Iterator<Record> recordIterator = importStream.iterator();
+        assertNotNull(recordIterator);
+
+        assertTrue(recordIterator.hasNext());
+
+        Record record = recordIterator.next();
+        assertNotNull(record);
+        assertEquals("EV_01", record.getFieldValue("CODE"));
+        assertEquals("EV01.desc", record.getFieldValue("DESC0"));
+
+        assertTrue(recordIterator.hasNext());
+        record = recordIterator.next();
+        assertNotNull(record);
+        assertEquals("EV_02", record.getFieldValue("CODE"));
+        assertEquals("EV02.desc", record.getFieldValue("DESC0"));
+
+        assertTrue(recordIterator.hasNext());
+        record = recordIterator.next();
+        assertNotNull(record);
+        assertEquals("EV_03", record.getFieldValue("CODE"));
+        assertEquals("EV03.desc", record.getFieldValue("DESC0"));
+
+        assertFalse(recordIterator.hasNext());
+    }
+}
+</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Often, in unit tests, you will create dummy classes that implement interfaces and return canned values. You'll then pass those to the object you're testing, to ensure that its functions give the expected output for the expected input.</li>
+                        <li>There are libraries that help with this process: a great one is <a href="https://code.google.com/p/mockito/">Mockito</a>.</li>
+                        <li>Don't abuse Mockito though: if you need to create seven mocks to test one method, perhaps you should refactor it in smaller pieces.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Dependency injection</h2>
+                    <ul>
+                        <li><i>Dependency injection,</i> or <i>inversion of control,</i> is an object oriented design pattern that has become extremely popular since 2005.</li>
+                        <li>While not invented by Spring, it has been popularized by it.</li>
+                        <li>The core idea of the pattern is that an object should not create the services it needs, but rather an external entity (the context manager) will create instances of the objects and <i>inject</i> them where needed.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>As an example, let us suppose your servlet needs to ensure the user is authenticated and to know the username.</li>
+                        <li>A first version of your code might be:</li>
+                    </ul>
+                    <pre class="java"><code>public UserData returnData(HttpServletRequest request) {
+    UserDetail userDetail = (UserDetail)request.getSession(true)
+        .getAttribute("userDetail");
+    // ...
+                    </code></pre>
+                    <ul>
+                        <li>What's wrong with this code? The main issue is that the code makes too many assumptions: it cannot be unit tested unless we set up a full servlet session mechanism in our unit test.</li>
+                        <li>Furthermore, the session management logic is too widespread: you'll have similar code in many parts of your applications; if you'll need to change it, you'll have to change it everywhere.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>A first step might be to restructure the code like this:</li>
+                    </ul>
+                    <pre class="java"><code>public class SessionManager {
+    public static UserDetail getUserDetail(HttpServletRequest request) {
+        return (UserDetail)request.getSession(true).getAttribute("userDetail");
+    }
+}
+                    </code></pre>
+                    <ul>
+                        <li>This centralizes the session management, but still doesn't help us with unit testing.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>What we actually need is an <i>interface</i>: an object which can provide us with the user details.</li>
+                    </ul>
+                    <pre class="java"><code>public interface SessionManager {
+    public UserDetail getUserDetail(HttpServletRequest request);
+}
+
+public class SessionManagerImpl {
+    @Override
+    public UserDetail getUserDetail(HttpServletRequest request) {
+        return (UserDetail)request.getSession(true).getAttribute("userDetail");
+    }
+}</code></pre>
+                    <ul>
+                        <li>We will have to rewrite our servlet so that it uses the abstract interface, instead of the implementation.</li>
+                        <li>Now we have simplified unit testing: in our tests we'll create an implementation of this interface that always returns the same details.</li>
+                        <li>However, we now have a different problem: who should create and manage the instance of this object?</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>If you were programming in Java in 2004, the answer was: create a <i>factory</i></li>
+                    </ul>
+                    <pre class="java"><code>public class SessionManagerFactory {
+    private static SessionManager service;
+
+    public static void setService(SessionManager service) {
+        this.service = service;
+    }
+
+    public static SessionManager getService() {
+        return service;
+    }
+}
+                
+// In your main (or similar):
+SessionManagerFactory.setService(new SessionManagerImpl());
+
+// In your unit test:
+SessionManagerFactory.setService(new TestSessionMananger());</code></pre>
+                    <ul>
+                        <li>This approach works, and was very common during the times of Java EE 2.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The dependency injection pattern expands on this idea, but with a twist.</li>
+                        <li>If you used a factory like the previous one, in your servlets you were still responsible to write code like this:</li>
+                    </ul>
+                    <pre class="java"><code>public class MyServlet {
+    private SessionManager sessionManager;
+
+    public MyServlet() {
+        this.sessionManager = SessionManagerFactory.getService();
+    }
+
+    // ...
+}</code></pre>
+                    <ul>
+                        <li>The user of a service is creating - or, in our case, retrieving - the instance of the service "manually".</li>
+                        <li>The idea of the dependency injection is that the instances of the services required will be <i>injected</i> by the injection framework.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code>// Example using standard Java EE annotations
+public class MyServlet {
+    @Inject
+    private SessionManager sessionManager;
+
+    // ...
+}</code></pre>
+                    <ul>
+                        <li>What we now simply have to do is to "request" an instance of an object that implements the required interface.</li>
+                        <li>Obviously, you can also request an instance of a concrete class, but you should always program to interfaces for unit testing anyway.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The dependency injection framework will manage the lifecycle of the service for us.</li>
+                        <li>Generally, that means that the framework will create <i>one</i> instance of the implementation class and inject it everywhere.</li>
+                        <li>This creates a sort of "logical singleton": only one instance of one object is created. However, this is not required: when configuring your dependency injection framework you can generally say that you want to create a new instance at each request, or for each transaction. Still, one instance per application is the most common case (and thus it is generally the default).</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The most commonly used implementation of dependency injection in Java are:
+                        <ul>
+                            <li><a href="http://spring.io/">Spring</a>, which is a family of <i>many</i> libraries, all based on <a href="http://projects.spring.io/spring-framework/">Spring Context</a>: the dependency injection framework.</li>
+                            <li><a href="https://code.google.com/p/google-guice/">Guice</a>, a lightweight but powerful framework.</li>
+                            <li><a href="http://docs.oracle.com/javaee/6/tutorial/doc/giwhb.html">CDI</a>, the dependency injection framework in Java EE</li>
+                        </ul>
+                        </li>
+                        <li>These three provide pretty much the same basics functionalities, but how to actually use them changes wildly.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Spring</h2>
+                    <ul>
+                        <li>The main concept in Spring is the <i>ApplicationContext</i>. This is basically a set of instances of objects (often called <i>beans</i>) that are created and managed by Spring.</li>
+                        <li>Application contexts are hierarchical: children application contexts inherit all the beans in the parent, and can add new ones.</li>
+                        <li>There are multiple ways to create application context: by hand, by loading an XML file, with the use of annotation. Refer to any Spring book for the details.</li>
+                        <li>We'll now see some examples of how to use Spring annotations in actual code, and we'll leave out the details on how to actually create a context.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code>@Service
+public class SessionManagerImpl implements sessionManager {
+    // As before
+}</code></pre>
+                    <ul>
+                        <li>By placing the <a href="http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/stereotype/Service.html"><code>@Service</code></a> annotation on a class, we'll instruct Spring to create <i>one</i> instance of it during startup and to place it in the application context.</li>
+                        <li>Obviously, you can also request an instance of a concrete class, but you should always program to interfaces for unit testing anyway.</li>
+                        <li>You can pass an optional argument to specify the bean's name: <code>@Service("sessionManager")</code>.</li>
+                        <li>You can also use <a href="http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/stereotype/Component.html"><code>@Component</code></a> to achieve the same effect.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code>public class MyServlet {
+    @Autowired
+    private SessionManager sessionManager;
+
+    // As before
+}</code></pre>
+                    <ul>
+                        <li>By using the <a href="http://docs.spring.io/spring/docs/3.2.7.RELEASE/javadoc-api/org/springframework/beans/factory/annotation/Autowired.html"><code>@Autowired</code></a> annotation on a member, we ask Spring to <i>inject</i> the bean instance in this variable (i.e. to fill its value).</li>
+                        <li><code>Autowired</code> will work assuming it can find only <i>one</i> valid instance of a bean to inject: if, for instance, there were two beans both implementing the <code>sessionManager</code> interface, Spring would refuse to start up the application and complain about an ambiguous reference. In this case, you can ask Spring to inject a specific bean given its name, by adding <a href="http://docs.spring.io/spring-framework/docs/3.2.0.M2/api/org/springframework/beans/factory/annotation/Qualifier.html"><code>@Qualifier("sessionManager")</code></a> as well as <code>@Autowired</code>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with this lesson. In the <a href="springmvc.html">next part</a>, we'll cover Spring MVC.
+                    </p>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+    </body>
+</html>

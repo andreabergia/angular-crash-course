@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Spring MVC Crash Course</title>
+
+        <meta name="description" content="A crash course in Spring MVC">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <script src="js/angular.min.js"></script>
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>Spring MVC Crash Course</h1>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Spring MVC</h2>
+
+                    <ul>
+                        <li><a href="http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html">Spring MVC</a> is a Model-View-Controller (MVC) web framework, based on Spring and on the Java Servlet technologies.</li>
+                        <li>The idea is: you don't create any servlet, except the Spring built-in one. What you create are <i>controllers</i>, and register them to certain URLs. The Spring servlet will dispatch the request to the appropriate controller.</li>
+                        <li>The controller can operate in two ways: it can either prepare the model and ask Spring to render a <i>view</i> (generally a JSP) with the given model, or it can return directly an object and ask Spring to transform it to JSON or XML.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>Controllers and views</h2>
+
+                    <pre class="java"><code>@Controller
+public class IndexController {
+    @Autowired
+    private SessionManager sessionManager;
+
+    @RequestMapping(value="/", method=RequestMethod.GET)
+    public String getHomePage(HttpServletRequest request) {
+        if (sessionManager.isUserAuthenticated(request)) {
+            return "index";
+        }
+        return "redirect:login";
+    }
+}
+</code></pre>
+                    <ul>
+                        <li>Notice how the class is annotated with <a href="http://docs.spring.io/spring/docs/3.2.7.RELEASE/javadoc-api/org/springframework/stereotype/Controller.html"><code>@Controller</code></a>. This annotation implies <code>@Service</code>, but also that the object responds to HTTP requests.</li>
+                        <li>A public method in the class can be annotated with <a href="http://docs.spring.io/spring-framework/docs/3.2.0.M1/api/org/springframework/web/bind/annotation/RequestMapping.html"><code>@RequestMapping</code></a>. This tells the Spring servlet to invoke that method when it receives an HTTP request matching the parameters on the annotation.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>The signature of the method is quite free: you can ask Spring for the <code>HttpServletRequest</code>, for the <code>HttpServletResponse</code> and more (which we'll see later). The parameters can be in any order, and Spring will automatically fill them with the correct values.</li>
+                        <li>This method returns a String: this instructs Spring that the returned value is the name of the view to render. In case we want to redirect the user to another url (as we do in the example, when the user is not authenticated, we can use <code>"redirect:url"</code>.</li>
+                        <li>The view used will be, in case the user is authenticated, the file <a>WEB-INF/jsp/index.jsp</a> - but you can specify in the Spring MVC configuration where the files are located.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>We could have also returned a <code>ModelAndView</code> object, to pass parameters to the JSP. For example:</li>
+                    </ul>
+                    <pre class="java"><code>@RequestMapping(value="/", method=RequestMethod.GET)
+    public ModelAndView getHomePage(HttpServletRequest request) {
+        String userName = sessionManager.getUserName(request);
+        if (userName != null) {
+            ModelAndView modelAndView = new ModelAndView("index");
+            modelAndView.addObject("userName", userName);
+            return modelAndView;
+        }
+        return new ModelAndView("redirect:login");
+    }</code></pre>
+                    <ul>
+                        <li>In the JSP, we can access the user name with <code>&lt;c:out value="${userName}"/&gt;</code>.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>REST</h2>
+
+                    <ul>
+                        <li>Spring MVC can also be used to implement a REST server.</li>
+                        <li>The usage is extremely simple and powerful: simply return a Java object from your method and annotate it with <a href="http://docs.spring.io/spring/docs/3.2.x/javadoc-api/org/springframework/web/bind/annotation/ResponseBody.html"><code>@ResponseBody</code></a>. Spring will automatically transform it into JSON (or XML, depending on how you configure it) and return it in the HTTP response body.</li>
+                        <li>It is common to use the <a href="http://jackson.codehaus.org/">Jackson</a> library to transform your objects to JSON. By default, Jackson will transform each public property for which it finds a getter method.</li>
+                        <li>Being able to return simple Java objects is a double benefit: not only you don't have to worry with JSON serialization, but you also can call your method from another one - after all, you're defining a standard Java function.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <pre class="java"><code>@RequestMapping(value="/", method=RequestMethod.GET)
+@ResponseBody
+public List&lt;Record&gt; getRecords() {
+    List&lt;Record&gt; records = new ArrayList&lt;&gt;();
+    records.add(new Record(1, "Hello"));
+    records.add(new Record(2, "World"));
+    return records;
+}</code></pre>
+                    <p>This might return something like</p>
+                    <pre class="json"><code>[
+    {
+        "id": 1,
+        "text": "Hello"
+    }, {
+        "id": 2,
+        "text": "World"
+    }
+]</code></pre>
+                </section>
+
+                <section>
+                    <h2>Parameters, path, request body</h2>
+
+                    <ul>
+                        <li>Spring MVC also helps you to handle request parameters, url parts and request body.</li>
+                        <li>If you want to respond to an HTTP GET request with a mandatory parameter named "table" and an optional parameter called "maxRecords", you can write your method like this:</li>
+                    </ul>
+                    <pre class="java"><code>@RequestMapping(value="/", method=RequestMethod.GET)
+@ResponseBody
+public List&lt;Record&gt; getRecords(@RequestParam("table") String table,
+    @RequestParam(value="maxRecords", mandatory=false, defaultValue="100") int maxRecords) {
+    // ...
+}</code></pre>
+                    <ul>
+                        <li>Spring will automatically transform the HTTP parameters into appropriate Java variables and call your function with them.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>If you want to respond to an HTTP GET request to an url like <a>/users/{id}</a>, where the <code>id</code> part is a parameter, you can write your method like this:</li>
+                    </ul>
+                    <pre class="java"><code>@RequestMapping(value="/users/{id}", method=RequestMethod.GET)
+@ResponseBody
+public User getUser(@PathVariable("id") String id) {
+    // ...
+}</code></pre>
+                    <ul>
+                        <li>Obviously, you can combine it with parameters as we have seen before.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>Finally, for HTTP methods that accept a request body (POST and PUT), you can also ask Spring to transform the full body - for instance, if it is represented as JSON - into an object.</li>
+                    </ul>
+                    <pre class="java"><code>@RequestMapping(value="/users", method=RequestMethod.POST)
+@ResponseBody
+public long createNewUser(@RequestBody User user) {
+    // create the user, save it and return the new id
+}</code></pre>
+                    <ul>
+                        <li>Your class, in this case, should have setters: by default this is how Jackson will create your object. However, you can provide your own decoder; please see the documentation for more details.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with this lesson.
+                    </p>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+    </body>
+</html>

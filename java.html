@@ -161,7 +161,7 @@ HashMap&lt;Long, String&gt; v = new HashMap&lt;&gt;();</code></pre>
                 <section>
                     <h2>Unit tests</h2>
                     <ul>
-                        <li>You should try to implement unit tests for all your code. Ideally, you should do TDD; realistically, unit tests the <i>hard</i> part of the code (i.e. not a getter or setter).</li>
+                        <li>You should try to implement unit tests for all your code. Ideally, you should do TDD; realistically, unit test the <i>hard</i> part of the code (i.e. not a getter or setter).</li>
                         <li>The de-facto standard in Java is <a href="http://junit.org/">JUnit 4</a>.</li>
                         <li>Assuming you are using the standard Maven project layout (and really, you <i>should</i>), for a class in <a>src/main/java/com/company/Foo.java</a> you should place the unit tests in <a>src/test/java/com/company/FooTest.java</a>.</li>
                         <li>An unit test class is a simple class, whose methods are annotated with <code>@Test</code>.</li>
@@ -316,7 +316,7 @@ HashMap&lt;Long, String&gt; v = new HashMap&lt;&gt;();</code></pre>
     public UserDetail getUserDetail(HttpServletRequest request);
 }
 
-public class SessionManagerImpl {
+public class SessionManagerImpl implements SessionManager {
     @Override
     public UserDetail getUserDetail(HttpServletRequest request) {
         return (UserDetail)request.getSession(true).getAttribute("userDetail");

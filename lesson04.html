@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en" ng-app="directives">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>AngularJS - A crash course - Lesson 4</title>
+
+        <meta name="description" content="A crash course in AngularJS - Lesson 4">
+        <meta name="author" content="Andrea Bergia">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+        <link rel="stylesheet" href="lib/css/tomorrow.css">
+
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <script src="js/angular.min.js"></script>
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h1>AngularJS Crash Course</h1>
+                    <h3>Lesson 4 - Custom Directives</h3>
+                    <p>
+                        <small>Created by <a href="mailto:andreabergia@gmail.com">Andrea Bergia</a></small>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Custom directives</h2>
+                    <p>
+                    The last major feature we have to see in AngularJS is how to define a custom directive.
+                    </p>
+                    <p>
+                    Directives can often be classified in one of two types: they can either define a new component or extend an existing one. For instance, <code>ng-show</code> extends any component it is applied to, by adding some functionality.
+                    </p>
+                    <p>
+                    Generally, directives which add functionalities are designed to be used as <i>attributes</i>, where directives that are used as components are used as <i>elements</i> (new tags). However, this is purely by convention.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>A simple example</h2>
+                    <pre class="javascript"><code style="max-height: 600px">var app = angular.module('directives', []);
+app.directive('emailLink', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            address: '@'
+        },
+        template: '<a href="mailto:{&#8203;{address}}">{&#8203;{address}}</a>'
+    }
+});
+</code></pre>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>This example starts by defining a new directive, <code>emailLink</code>. As with services, the actual "directive" is the object returned by the anonymous function we created.</li>
+                        <li><code>restrict: 'E'</code> tells AngularJS that this directive can be used only as a new element (tag). We can also use <code>'A'</code> for attributes, and <code>'AE'</code> for both.</li>
+                        <li>Before explaining all the other details, let's see how we'd use this directive</li>
+                    </ul>
+
+                    <pre class="html"><code>&lt;email-link address="andreabergia@gmail.com"&gt;&lt;/email-link&gt;</code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <email-link address="andreabergia.gmail.com"></email-link>
+                    </div>
+
+
+                </section>
+
+                <section>
+                    <ul>
+                        <li><code>replace: true</code> means that the directive node from the DOM must be removed and replaced with the directive's content. If you inspect the DOM in the latest example, you'll see only the <code>a</code> tag, not the <code>email-link</code> one.</li>
+                        <li>Note that the directive has a <code>scope</code> object, with the key <code>address: '@'</code>. This means that, when we use this directive, we can pass an argument in the attribute "address". The value of this attribute is passed as a string (that is the meaning of <code>'@'</code>). If we wanted to pass a reference to a scope variable, we can use <code>'='</code>. We'll see an example shortly.</li>
+                        <li>Finally, we have used <code>template</code> to specify an HTML template that will be used when we insert the directive. We can also specify <code>templateUrl</code> to load an external file.</li>
+                    </ul>
+                </section>
+
+
+                <section>
+                    <h2>Directive's controllers</h2>
+                    <pre class="javascript"><code style="max-height: 600px">var app = angular.module('directives', []);
+app.directive('countryList', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            countries: '='
+        },
+        template: '&lt;table&gt;&lt;tr ng-repeat="country in countries"&gt;' +
+                        '&lt;td ng-click="selectCountry(country)"&gt;{&#8203;{country}}&lt;/td&gt;' +
+                    '&lt;/tr&gt;&lt;/table&gt;',
+        controller: function($scope) {
+            $scope.selectCountry = function(country) {
+                alert('You selected ' + country);
+            };
+        }
+    }
+});</code></pre>
+
+                    <p>As you can see, nothing prevents a directive from having its own, private controller.</p>
+                </section>
+
+                <section>
+                    <pre class="html"><code>&lt;script&gt;
+app.controller('TestCountryCtrl', function($scope) {
+    $scope.myCountries = ['Argentina', 'Brazil', 'Mexico', 'USA'];
+});
+&lt;/script&gt;
+&lt;p&gt;Click on a country!&lt;/p&gt;
+&lt;div ng-controller="TestCountryCtrl"&gt;
+    &lt;country-list countries="myCountries"&gt;&lt;/country-list&gt;
+&lt;/div&gt;</code></pre>
+
+                    <div class="live-example">
+                        <div class="live-example-title">Live example</div>
+                        <p>Click on a country!</p>
+                        <div ng-controller="TestCountryCtrl">
+                            <country-list countries="myCountries"></country-list>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>That's it for now</h2>
+                    <p>
+                    You're done with this lesson. Thank you for reading.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>Further resources</h2>
+                    <ul>
+                        <li><a href="http://fastandfluid.com/publicdownloads/AngularJSIn60MinutesIsh_DanWahlin_May2013.pdf">AngularJS in 60 minutes</a> is an excellent, short introduction.</li>
+                        <li><a href="http://www.thinkster.io/">Thinkster</a> has an excellent, in depth tutorial.</li>
+                        <li><a href="https://egghead.io/lessons">Egghead videos</a> are an excellent full course in AngularJS.</li>
+                        <li><a href="http://www.ng-newsletter.com/posts/">Ng-Newsletter</a> has a lot of interesting and well written articles, including <a href="http://www.ng-newsletter.com/posts/directives.html">an excellent, in depth tutorial</a> about writing custom directives.</li>
+                        <li><a href="http://pascalprecht.github.io/angular-translate/#/guide">angular-translate</a> is a great library to simply add internationalization to your applications.</li>
+                        <li><a href="http://angular-ui.github.io/bootstrap/">angular-ui</a> is a set of extremely useful components to create modern, good looking web applications.</li>
+                        <li><a href="https://stackoverflow.com/questions/tagged/angularjs">Stack Overflow</a> has <i>a lot</i> of question and answers regarding AngularJS development.</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+            // Full list of configuration options available here: https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                theme: 'sky',
+                transition: 'default', // default/cube/page/concave/zoom/linear/fade/none
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { 
+                            hljs.configure({languages: ['html']});
+                            hljs.initHighlightingOnLoad(); 
+                        } 
+                    }
+                ]
+            });
+        </script>
+
+        <script>
+        var app = angular.module('directives', []);
+        app.directive('emailLink', function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                scope: {
+                    address: '@'
+                },
+                template: '<a href="mailto:{{address}}">{{address}}</a>'
+            }
+        });
+
+        app.directive('countryList', function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                scope: {
+                    countries: '='
+                },
+                template: '<table><tr ng-repeat="country in countries"><td ng-click="selectCountry(country)">{{country}}</td></tr></table>',
+                controller: function($scope) {
+                    $scope.selectCountry = function(country) {
+                        alert('You selected ' + country);
+                    };
+                }
+            }
+        });
+
+        app.controller('TestCountryCtrl', function($scope) {
+            $scope.myCountries = ['Argentina', 'Brazil', 'Mexico', 'USA'];
+        });
+        </script>
+    </body>
+</html>
